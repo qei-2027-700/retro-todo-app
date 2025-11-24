@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: retro_todo_db
+    environment:
+      POSTGRES_USER: youruser         # DB_USERと同じ値に
+      POSTGRES_PASSWORD: yourpassword # DB_PASSWORDと同じ値に
+      POSTGRES_DB: retro_todo_db             # DB_NAMEと同じ値に
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - todo-network
+
+volumes:
+  postgres_data:
+
+networks:
+  todo-network:
+    driver: bridge
