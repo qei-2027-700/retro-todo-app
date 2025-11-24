@@ -17,6 +17,15 @@ func NewTodoHandler(repo repository.TodoRepository) *TodoHandler {
 	return &TodoHandler{repo: repo}
 }
 
+// GetTodos godoc
+// @Summary TODOリストを取得
+// @Description すべてのTODOを取得します
+// @Tags todos
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.Todo
+// @Failure 500 {object} map[string]string
+// @Router /todos [get]
 func (h *TodoHandler) GetTodos(c echo.Context) error {
 	log.Println("[HANDLER GET /todos] Fetching all todos...")
 
@@ -30,6 +39,17 @@ func (h *TodoHandler) GetTodos(c echo.Context) error {
 	return c.JSON(http.StatusOK, todos)
 }
 
+// CreateTodo godoc
+// @Summary TODOを作成
+// @Description 新しいTODOを作成します
+// @Tags todos
+// @Accept json
+// @Produce json
+// @Param todo body model.Todo true "TODO情報"
+// @Success 201 {object} model.Todo
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /todos [post]
 func (h *TodoHandler) CreateTodo(c echo.Context) error {
 	log.Println("[HANDLER POST /todos] Creating new todo...")
 

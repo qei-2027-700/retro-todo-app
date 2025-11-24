@@ -16,6 +16,11 @@ coverage.html
 backend/bin/
 bin/
 
+# Swagger generated files
+backend/docs/docs.go
+# backend/docs/swagger.yml
+backend/docs/swagger.yaml
+
 # Go workspace file
 go.work
 

@@ -9,6 +9,7 @@ go run cmd/migrate/main.go
 
 # TODO
 [] DB-migration化
+[] swagger 自動生成とコマンド化
 
 [] 認証機能を実装
 [] 

@@ -7,32 +7,32 @@ vars:
 
 tasks:
   # 開発サーバー起動
-  be:dev:
+  dev:
     desc: "開発サーバーを起動"
     cmds:
       - go run {{.MAIN_PATH}}
 
   # 開発サーバー起動（Air使用）
-  be:dev:watch:
+  dev:watch:
     desc: "開発サーバーを起動（ホットリロード）"
     cmds:
       - air
 
   # サーバープロセスをkill
-  be:kill:
+  kill:
     desc: "ポート8080のプロセスを停止"
     cmds:
       - lsof -ti :8080 | xargs kill -9 2>/dev/null || echo "No processes to kill"
 
   # サーバー再起動
-  be:restart:
+  restart:
     desc: "サーバーを再起動（既存プロセスをkill後に起動）"
     cmds:
-      - task: be:kill
-      - task: be:dev
+      - task: kill
+      - task: dev
 
   # ビルド
-  be:build:
+  build:
     desc: "アプリケーションをビルド"
     cmds:
       - go build -o bin/{{.APP_NAME}} {{.MAIN_PATH}}
@@ -40,25 +40,37 @@ tasks:
       - bin/{{.APP_NAME}}
 
   # マイグレーション実行
-  be:migrate:
+  migrate:
     desc: "データベースマイグレーションを実行"
     cmds:
       - go run {{.MIGRATE_PATH}}
 
   # マイグレーション実行（シェルスクリプト版）
-  be:migrate:sh:
+  migrate:sh:
     desc: "データベースマイグレーションを実行（シェルスクリプト）"
     cmds:
       - ./migrate.sh
 
+  # Swagger関連
+  swag:
+    desc: "Swaggerドキュメントを生成"
+    cmds:
+      - swag init -g cmd/api/main.go -o docs --outputTypes go,json,yaml
+      - mv docs/swagger.yaml docs/swagger.yml 2>/dev/null || true
+
+  swagger:fmt:
+    desc: "Swaggerアノテーションを整形"
+    cmds:
+      - swag fmt
+
   # テスト実行
-  be:test:
+  test:
     desc: "テストを実行"
     cmds:
       - go test -v ./...
 
   # テストカバレッジ
-  be:test:coverage:
+  test:coverage:
     desc: "テストカバレッジを確認"
     cmds:
       - go test -coverprofile=coverage.out ./...
@@ -66,97 +78,79 @@ tasks:
       - echo "カバレッジレポート coverage.html"
 
   # 依存関係インストール
-  be:deps:
+  deps:
     desc: "依存関係をインストール"
     cmds:
       - go mod download
       - go mod tidy
 
-  # コード整形
-  be:fmt:
-    desc: "コードを整形"
-    cmds:
-      - go fmt ./...
-
-  # Linter実行
-  be:lint:
-    desc: "Linterを実行"
-    cmds:
-      - golangci-lint run
-
   # クリーンアップ
-  be:clean:
+  clean:
     desc: "ビルド成果物を削除"
     cmds:
       - rm -rf bin/
       - rm -f coverage.out coverage.html
 
   # Docker関連
-  be:docker:up:
+  docker:up:
     desc: "Dockerコンテナを起動"
     dir: ..
     cmds:
       - docker compose up -d
 
-  be:docker:down:
+  docker:down:
     desc: "Dockerコンテナを停止"
     dir: ..
     cmds:
       - docker compose down
 
-  be:docker:logs:
-    desc: "Dockerコンテナのログを表示"
-    dir: ..
-    cmds:
-      - docker compose logs -f
-
-  be:docker:restart:
+  docker:restart:
     desc: "Dockerコンテナを再起動"
     dir: ..
     cmds:
       - docker compose restart
 
-  be:docker:clean:
+  docker:clean:
     desc: "Dockerコンテナとボリュームを削除"
     dir: ..
     cmds:
       - docker compose down -v
 
   # データベース関連
-  be:db:psql:
+  db:psql:
     desc: "PostgreSQLに接続"
     cmds:
       - docker exec -it retro_todo_db psql -U youruser -d retro_todo_db
 
-  be:db:reset:
+  db:reset:
     desc: "データベースをリセット"
     cmds:
-      - task: be:docker:clean
-      - task: be:docker:up
+      - task: docker:clean
+      - task: docker:up
       - sleep 3
-      - task: be:migrate
+      - task: migrate
 
   # 開発環境セットアップ
-  be:setup:
+  setup:
     desc: "開発環境をセットアップ"
     cmds:
-      - task: be:deps
-      - task: be:docker:up
+      - task: deps
+      - task: docker:up
       - sleep 3
-      - task: be:migrate
+      - task: migrate
       - echo 'セットアップ完了！'
 
   # サーバー起動（フル）
-  be:start:
+  start:
     desc: "フルスタックで起動（Docker + API）"
     cmds:
-      - task: be:docker:up
+      - task: docker:up
       - sleep 3
-      - task: be:migrate
-      - task: be:dev
+      - task: migrate
+      - task: dev
 
   # ヘルプ
-  be:help:
+  help:
     desc: "利用可能なタスクを表示"
     cmds:
       - task --list
