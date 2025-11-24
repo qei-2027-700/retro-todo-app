@@ -8,8 +8,16 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
+
+	_ "backend/docs" // swagger docs
 )
 
+// @title Retro Todo API
+// @version 1.0
+// @description レトロなTODOアプリケーションのAPI
+// @host localhost:8080
+// @BasePath /
 func main() {
 	log.Println("[MAIN] Starting server initialization...")
 	storage.Init()
@@ -29,6 +37,10 @@ func main() {
 	e.GET("/todos", todoHandler.GetTodos)
 	e.POST("/todos", todoHandler.CreateTodo)
 
+	// Swagger UI
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	log.Println("[MAIN] Server starting on :8080")
+	log.Println("[MAIN] Swagger UI: http://localhost:8080/swagger/index.html")
 	e.Logger.Fatal(e.Start(":8080"))
 }

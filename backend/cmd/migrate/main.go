@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -14,90 +18,140 @@ func main() {
 	log.Println("[MIGRATION] Starting database migration...")
 
 	// .envファイルの読み込み
-	log.Println("[MIGRATION] Loading .env file...")
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	// データベース接続情報の取得
+	// データベース接続
+	db := connectDB()
+	defer db.Close()
+
+	// マイグレーション履歴テーブルの確認・作成
+	ensureSchemaVersionTable(db)
+
+	// 適用済みのマイグレーションを取得
+	appliedMigrations := getAppliedMigrations(db)
+	appliedMap := make(map[int]bool)
+	for _, version := range appliedMigrations {
+		appliedMap[version] = true
+	}
+
+	// マイグレーションファイルの取得とソート
+	migrationFiles, err := filepath.Glob("migrations/*.up.sql")
+	if err != nil {
+		log.Fatalf("[MIGRATION] Could not find migration files: %v", err)
+	}
+	sort.Strings(migrationFiles)
+
+	log.Println("[MIGRATION] Found migration files:", migrationFiles)
+
+	// マイグレーションの実行
+	for _, file := range migrationFiles {
+		version, err := getVersionFromFile(file)
+		if err != nil {
+			log.Printf("[MIGRATION] Skipping file with invalid version format: %s", file)
+			continue
+		}
+
+		if _, applied := appliedMap[version]; applied {
+			log.Printf("[MIGRATION] Skipping already applied migration: %s", file)
+			continue
+		}
+
+		log.Printf("[MIGRATION] Applying migration: %s", file)
+		content, err := os.ReadFile(file)
+		if err != nil {
+			log.Fatalf("[MIGRATION] Failed to read migration file %s: %v", file, err)
+		}
+
+		tx, err := db.Begin()
+		if err != nil {
+			log.Fatalf("[MIGRATION] Failed to begin transaction: %v", err)
+		}
+
+		if _, err := tx.Exec(string(content)); err != nil {
+			tx.Rollback()
+			log.Fatalf("[MIGRATION] Failed to apply migration %s: %v", file, err)
+		}
+
+		if err := addMigrationHistory(tx, version); err != nil {
+			tx.Rollback()
+			log.Fatalf("[MIGRATION] Failed to record migration history for version %d: %v", version, err)
+		}
+
+		if err := tx.Commit(); err != nil {
+			log.Fatalf("[MIGRATION] Failed to commit transaction for migration %s: %v", file, err)
+		}
+
+		log.Printf("[MIGRATION] ✓ Successfully applied migration: %s", file)
+	}
+
+	log.Println("[MIGRATION] Migration completed successfully!")
+}
+
+func connectDB() *sql.DB {
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
 
-	log.Printf("[MIGRATION] Connecting to database: host=%s port=%s user=%s dbname=%s", dbHost, dbPort, dbUser, dbName)
-
-	// データベース接続
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		dbHost,
-		dbPort,
-		dbUser,
-		dbPassword,
-		dbName,
-	)
+		dbHost, dbPort, dbUser, dbPassword, dbName)
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("[MIGRATION] Failed to connect to database: %v", err)
 	}
-	defer db.Close()
-
-	// 接続確認
-	if err = db.Ping(); err != nil {
+	if err := db.Ping(); err != nil {
 		log.Fatalf("[MIGRATION] Failed to ping database: %v", err)
 	}
 	log.Println("[MIGRATION] Successfully connected to database!")
+	return db
+}
 
-	// マイグレーション実行
-	log.Println("[MIGRATION] Running migrations...")
-
-	// todosテーブルの作成
-	createTodosTable := `
-		CREATE TABLE IF NOT EXISTS todos (
-			id SERIAL PRIMARY KEY,
-			title VARCHAR(255) NOT NULL,
-			completed BOOLEAN DEFAULT false,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+func ensureSchemaVersionTable(db *sql.DB) {
+	log.Println("[MIGRATION] Ensuring schema_migrations table exists...")
+	query := `
+		CREATE TABLE IF NOT EXISTS schema_migrations (
+			version INT PRIMARY KEY
 		);
 	`
+	if _, err := db.Exec(query); err != nil {
+		log.Fatalf("[MIGRATION] Failed to create or verify schema_migrations table: %v", err)
+	}
+	log.Println("[MIGRATION] ✓ schema_migrations table verified.")
+}
 
-	log.Println("[MIGRATION] Creating todos table if not exists...")
-	_, err = db.Exec(createTodosTable)
+func getAppliedMigrations(db *sql.DB) []int {
+	rows, err := db.Query("SELECT version FROM schema_migrations ORDER BY version")
 	if err != nil {
-		log.Fatalf("[MIGRATION] Failed to create todos table: %v", err)
+		log.Fatalf("[MIGRATION] Failed to query schema_migrations table: %v", err)
 	}
-	log.Println("[MIGRATION] ✓ todos table created/verified")
+	defer rows.Close()
 
-	// 既存テーブルへのカラム追加（IF NOT EXISTSで冪等性を保つ）
-	log.Println("[MIGRATION] Adding columns if not exists...")
-
-	alterTableQueries := []string{
-		"ALTER TABLE todos ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-		"ALTER TABLE todos ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-	}
-
-	for _, query := range alterTableQueries {
-		_, err = db.Exec(query)
-		if err != nil {
-			log.Fatalf("[MIGRATION] Failed to alter table: %v", err)
+	var versions []int
+	for rows.Next() {
+		var version int
+		if err := rows.Scan(&version); err != nil {
+			log.Fatalf("[MIGRATION] Failed to scan migration version: %v", err)
 		}
+		versions = append(versions, version)
 	}
-	log.Println("[MIGRATION] ✓ Columns added/verified")
+	return versions
+}
 
-	// インデックスの作成
-	createIndexes := `
-		CREATE INDEX IF NOT EXISTS idx_todos_completed ON todos(completed);
-	`
-
-	log.Println("[MIGRATION] Creating indexes if not exists...")
-	_, err = db.Exec(createIndexes)
-	if err != nil {
-		log.Fatalf("[MIGRATION] Failed to create indexes: %v", err)
+func getVersionFromFile(file string) (int, error) {
+	base := filepath.Base(file)
+	parts := strings.Split(base, "_")
+	if len(parts) < 1 {
+		return 0, fmt.Errorf("invalid migration file name format: %s", base)
 	}
-	log.Println("[MIGRATION] ✓ Indexes created/verified")
+	return strconv.Atoi(parts[0])
+}
 
-	log.Println("[MIGRATION] Migration completed successfully!")
+func addMigrationHistory(tx *sql.Tx, version int) error {
+	query := "INSERT INTO schema_migrations (version) VALUES ($1)"
+	_, err := tx.Exec(query, version)
+	return err
 }
