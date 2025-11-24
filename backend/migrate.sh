@@ -2,4 +2,4 @@
 
 echo "Running database migration..."
 cd "$(dirname "$0")"
-go run migrate/migrate.go
+go run cmd/migrate/main.go

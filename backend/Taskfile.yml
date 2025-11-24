@@ -1,0 +1,149 @@
+version: '3'
+
+vars:
+  APP_NAME: retro-todo-api
+  MAIN_PATH: cmd/api/main.go
+  MIGRATE_PATH: cmd/migrate/main.go
+
+tasks:
+  # 開発サーバー起動
+  be:dev:
+    desc: "開発サーバーを起動"
+    cmds:
+      - go run {{.MAIN_PATH}}
+
+  # 開発サーバー起動（Air使用）
+  be:dev:watch:
+    desc: "開発サーバーを起動（ホットリロード）"
+    cmds:
+      - air
+
+  # ビルド
+  be:build:
+    desc: "アプリケーションをビルド"
+    cmds:
+      - go build -o bin/{{.APP_NAME}} {{.MAIN_PATH}}
+    generates:
+      - bin/{{.APP_NAME}}
+
+  # マイグレーション実行
+  be:migrate:
+    desc: "データベースマイグレーションを実行"
+    cmds:
+      - go run {{.MIGRATE_PATH}}
+
+  # マイグレーション実行（シェルスクリプト版）
+  be:migrate:sh:
+    desc: "データベースマイグレーションを実行（シェルスクリプト）"
+    cmds:
+      - ./migrate.sh
+
+  # テスト実行
+  be:test:
+    desc: "テストを実行"
+    cmds:
+      - go test -v ./...
+
+  # テストカバレッジ
+  be:test:coverage:
+    desc: "テストカバレッジを確認"
+    cmds:
+      - go test -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "カバレッジレポート coverage.html"
+
+  # 依存関係インストール
+  be:deps:
+    desc: "依存関係をインストール"
+    cmds:
+      - go mod download
+      - go mod tidy
+
+  # コード整形
+  be:fmt:
+    desc: "コードを整形"
+    cmds:
+      - go fmt ./...
+
+  # Linter実行
+  be:lint:
+    desc: "Linterを実行"
+    cmds:
+      - golangci-lint run
+
+  # クリーンアップ
+  be:clean:
+    desc: "ビルド成果物を削除"
+    cmds:
+      - rm -rf bin/
+      - rm -f coverage.out coverage.html
+
+  # Docker関連
+  be:docker:up:
+    desc: "Dockerコンテナを起動"
+    dir: ..
+    cmds:
+      - docker compose up -d
+
+  be:docker:down:
+    desc: "Dockerコンテナを停止"
+    dir: ..
+    cmds:
+      - docker compose down
+
+  be:docker:logs:
+    desc: "Dockerコンテナのログを表示"
+    dir: ..
+    cmds:
+      - docker compose logs -f
+
+  be:docker:restart:
+    desc: "Dockerコンテナを再起動"
+    dir: ..
+    cmds:
+      - docker compose restart
+
+  be:docker:clean:
+    desc: "Dockerコンテナとボリュームを削除"
+    dir: ..
+    cmds:
+      - docker compose down -v
+
+  # データベース関連
+  be:db:psql:
+    desc: "PostgreSQLに接続"
+    cmds:
+      - docker exec -it retro_todo_db psql -U youruser -d retro_todo_db
+
+  be:db:reset:
+    desc: "データベースをリセット"
+    cmds:
+      - task: be:docker:clean
+      - task: be:docker:up
+      - sleep 3
+      - task: be:migrate
+
+  # 開発環境セットアップ
+  be:setup:
+    desc: "開発環境をセットアップ"
+    cmds:
+      - task: be:deps
+      - task: be:docker:up
+      - sleep 3
+      - task: be:migrate
+      - echo 'セットアップ完了！'
+
+  # サーバー起動（フル）
+  be:start:
+    desc: "フルスタックで起動（Docker + API）"
+    cmds:
+      - task: be:docker:up
+      - sleep 3
+      - task: be:migrate
+      - task: be:dev
+
+  # ヘルプ
+  be:help:
+    desc: "利用可能なタスクを表示"
+    cmds:
+      - task --list
