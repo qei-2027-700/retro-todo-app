@@ -2,49 +2,50 @@ package handler
 
 import (
 	"backend/internal/model"
-	"backend/internal/storage"
+	"backend/internal/repository"
 	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
-func GetTodos(c echo.Context) error {
-	log.Println("[GET /todos] Fetching all todos...")
-	rows, err := storage.DB.Query("SELECT id, title, completed FROM todos")
+type TodoHandler struct {
+	repo repository.TodoRepository
+}
+
+func NewTodoHandler(repo repository.TodoRepository) *TodoHandler {
+	return &TodoHandler{repo: repo}
+}
+
+func (h *TodoHandler) GetTodos(c echo.Context) error {
+	log.Println("[HANDLER GET /todos] Fetching all todos...")
+
+	todos, err := h.repo.FindAll()
 	if err != nil {
-		log.Printf("[GET /todos] Error querying database: %v", err)
+		log.Printf("[HANDLER GET /todos] Error fetching todos: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
-	defer rows.Close()
 
-	todos := []model.Todo{}
-	for rows.Next() {
-		var t model.Todo
-		if err := rows.Scan(&t.ID, &t.Title, &t.Completed); err != nil {
-			log.Printf("[GET /todos] Error scanning row: %v", err)
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
-		}
-		todos = append(todos, t)
-	}
-	log.Printf("[GET /todos] Successfully fetched %d todos", len(todos))
+	log.Printf("[HANDLER GET /todos] Successfully fetched %d todos", len(todos))
 	return c.JSON(http.StatusOK, todos)
 }
 
-func CreateTodo(c echo.Context) error {
-	log.Println("[POST /todos] Creating new todo...")
+func (h *TodoHandler) CreateTodo(c echo.Context) error {
+	log.Println("[HANDLER POST /todos] Creating new todo...")
+
 	t := new(model.Todo)
 	if err := c.Bind(t); err != nil {
-		log.Printf("[POST /todos] Error binding request: %v", err)
+		log.Printf("[HANDLER POST /todos] Error binding request: %v", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input"})
 	}
-	log.Printf("[POST /todos] Request data: title=%s, completed=%v", t.Title, t.Completed)
+	log.Printf("[HANDLER POST /todos] Request data: title=%s, completed=%v", t.Title, t.Completed)
 
-	err := storage.DB.QueryRow("INSERT INTO todos (title, completed) VALUES ($1, $2) RETURNING id", t.Title, t.Completed).Scan(&t.ID)
+	createdTodo, err := h.repo.Create(t.Title, t.Completed)
 	if err != nil {
-		log.Printf("[POST /todos] Error inserting todo: %v", err)
+		log.Printf("[HANDLER POST /todos] Error creating todo: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
-	log.Printf("[POST /todos] Successfully created todo with ID: %d", t.ID)
-	return c.JSON(http.StatusCreated, t)
+
+	log.Printf("[HANDLER POST /todos] Successfully created todo with ID: %d", createdTodo.ID)
+	return c.JSON(http.StatusCreated, createdTodo)
 }

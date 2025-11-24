@@ -18,6 +18,19 @@ tasks:
     cmds:
       - air
 
+  # サーバープロセスをkill
+  be:kill:
+    desc: "ポート8080のプロセスを停止"
+    cmds:
+      - lsof -ti :8080 | xargs kill -9 2>/dev/null || echo "No processes to kill"
+
+  # サーバー再起動
+  be:restart:
+    desc: "サーバーを再起動（既存プロセスをkill後に起動）"
+    cmds:
+      - task: be:kill
+      - task: be:dev
+
   # ビルド
   be:build:
     desc: "アプリケーションをビルド"
