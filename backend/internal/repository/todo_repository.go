@@ -3,12 +3,13 @@ package repository
 import (
 	"backend/internal/model"
 	"database/sql"
-	"log"
 )
 
 type TodoRepository interface {
 	FindAll() ([]model.Todo, error)
 	Create(title string, completed bool) (*model.Todo, error)
+	Update(title string, completed bool, id int) (int, string, error)
+	LogicalDelete(id int) error
 }
 
 type todoRepository struct {
@@ -20,11 +21,8 @@ func NewTodoRepository(db *sql.DB) TodoRepository {
 }
 
 func (r *todoRepository) FindAll() ([]model.Todo, error) {
-	log.Println("[REPOSITORY] Fetching all todos from database...")
-
-	rows, err := r.db.Query("SELECT id, title, completed FROM todos")
+	rows, err := r.db.Query("SELECT id, title, completed FROM todos WHERE is_deleted = false")
 	if err != nil {
-		log.Printf("[REPOSITORY] Error querying database: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -33,19 +31,15 @@ func (r *todoRepository) FindAll() ([]model.Todo, error) {
 	for rows.Next() {
 		var t model.Todo
 		if err := rows.Scan(&t.ID, &t.Title, &t.Completed); err != nil {
-			log.Printf("[REPOSITORY] Error scanning row: %v", err)
 			return nil, err
 		}
 		todos = append(todos, t)
 	}
 
-	log.Printf("[REPOSITORY] Successfully fetched %d todos", len(todos))
 	return todos, nil
 }
 
 func (r *todoRepository) Create(title string, completed bool) (*model.Todo, error) {
-	log.Printf("[REPOSITORY] Creating todo: title=%s, completed=%v", title, completed)
-
 	t := &model.Todo{
 		Title:     title,
 		Completed: completed,
@@ -58,10 +52,23 @@ func (r *todoRepository) Create(title string, completed bool) (*model.Todo, erro
 	).Scan(&t.ID)
 
 	if err != nil {
-		log.Printf("[REPOSITORY] Error inserting todo: %v", err)
 		return nil, err
 	}
 
-	log.Printf("[REPOSITORY] Successfully created todo with ID: %d", t.ID)
 	return t, nil
+}
+
+func (r *todoRepository) Update(title string, completed bool, id int) (int, string, error) {
+	query := `UPDATE todos SET title = $1, completed = $2 WHERE id = $3`
+	_, err := r.db.Exec(query, title, completed, id)
+	if err != nil {
+		return 0, "", err
+	}
+	return id, "更新成功", nil
+}
+
+func (r *todoRepository) LogicalDelete(id int) error {
+	query := `UPDATE todos SET is_deleted = true WHERE id = $1`
+	_, err := r.db.Exec(query, id)
+	return err
 }

@@ -1,0 +1,9 @@
+version: '3'
+
+includes:
+  be:
+    taskfile: ./backend/Taskfile.yml
+    dir: ./backend
+  # fe:
+  #   taskfile: ./frontend/Taskfile.yml
+  #   dir: ./frontend

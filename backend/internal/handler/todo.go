@@ -3,8 +3,8 @@ package handler
 import (
 	"backend/internal/model"
 	"backend/internal/repository"
-	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -27,15 +27,11 @@ func NewTodoHandler(repo repository.TodoRepository) *TodoHandler {
 // @Failure 500 {object} map[string]string
 // @Router /todos [get]
 func (h *TodoHandler) GetTodos(c echo.Context) error {
-	log.Println("[HANDLER GET /todos] Fetching all todos...")
-
 	todos, err := h.repo.FindAll()
 	if err != nil {
-		log.Printf("[HANDLER GET /todos] Error fetching todos: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
-	log.Printf("[HANDLER GET /todos] Successfully fetched %d todos", len(todos))
 	return c.JSON(http.StatusOK, todos)
 }
 
@@ -51,21 +47,44 @@ func (h *TodoHandler) GetTodos(c echo.Context) error {
 // @Failure 500 {object} map[string]string
 // @Router /todos [post]
 func (h *TodoHandler) CreateTodo(c echo.Context) error {
-	log.Println("[HANDLER POST /todos] Creating new todo...")
-
 	t := new(model.Todo)
 	if err := c.Bind(t); err != nil {
-		log.Printf("[HANDLER POST /todos] Error binding request: %v", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input"})
 	}
-	log.Printf("[HANDLER POST /todos] Request data: title=%s, completed=%v", t.Title, t.Completed)
 
 	createdTodo, err := h.repo.Create(t.Title, t.Completed)
 	if err != nil {
-		log.Printf("[HANDLER POST /todos] Error creating todo: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
-	log.Printf("[HANDLER POST /todos] Successfully created todo with ID: %d", createdTodo.ID)
 	return c.JSON(http.StatusCreated, createdTodo)
+}
+
+func (h *TodoHandler) UpdateTodo(c echo.Context) error {
+	t := new(model.Todo)
+	if err := c.Bind(t); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input"})
+	}
+
+	id, message, err := h.repo.Update(t.Title, t.Completed, t.ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, strconv.Itoa(id)+message)
+}
+
+func (h *TodoHandler) DeleteTodo(c echo.Context) error {
+	idParam := c.Param("id") // パスパラメータ :id を取得
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID parameter"})
+	}
+
+	err = h.repo.LogicalDelete(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }

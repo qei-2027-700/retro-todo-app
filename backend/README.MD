@@ -12,4 +12,4 @@ go run cmd/migrate/main.go
 [] swagger 自動生成とコマンド化
 
 [] 認証機能を実装
-[] 
+[] test 実装

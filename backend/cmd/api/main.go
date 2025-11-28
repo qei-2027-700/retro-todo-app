@@ -36,6 +36,8 @@ func main() {
 	log.Println("[MAIN] Registering routes...")
 	e.GET("/todos", todoHandler.GetTodos)
 	e.POST("/todos", todoHandler.CreateTodo)
+	e.PUT("/todos", todoHandler.UpdateTodo)
+	e.DELETE("/todos/:id", todoHandler.DeleteTodo)
 
 	// Swagger UI
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
