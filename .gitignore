@@ -16,6 +16,10 @@ coverage.html
 backend/bin/
 bin/
 
+# Air - Live reload for Go
+backend/tmp/
+backend/build-errors.log
+
 # Swagger generated files
 backend/docs/docs.go
 # backend/docs/swagger.yml

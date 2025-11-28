@@ -45,12 +45,6 @@ tasks:
     cmds:
       - go run {{.MIGRATE_PATH}}
 
-  # マイグレーション実行（シェルスクリプト版）
-  migrate:sh:
-    desc: "データベースマイグレーションを実行（シェルスクリプト）"
-    cmds:
-      - ./migrate.sh
-
   # Swagger関連
   swag:
     desc: "Swaggerドキュメントを生成"

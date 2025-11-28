@@ -24,20 +24,30 @@ func main() {
 
 	// リポジトリの初期化
 	todoRepo := repository.NewTodoRepository(storage.DB)
+	sprintRepo := repository.NewSprintRepository(storage.DB)
 
 	// ハンドラーの初期化
 	todoHandler := handler.NewTodoHandler(todoRepo)
+	sprintHandler := handler.NewSprintHandler(sprintRepo)
 
 	e := echo.New()
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	log.Println("[MAIN] Registering routes...")
+	// todos
 	e.GET("/todos", todoHandler.GetTodos)
 	e.POST("/todos", todoHandler.CreateTodo)
-	e.PUT("/todos", todoHandler.UpdateTodo)
+	e.POST("/todos/search", todoHandler.SearchTodos)
+	e.PUT("/todos/:id", todoHandler.UpdateTodo)
 	e.DELETE("/todos/:id", todoHandler.DeleteTodo)
+
+	// sprints
+	e.GET("/sprints", sprintHandler.GetSprints)
+	e.POST("/sprints", sprintHandler.CreateSprint)
+	e.POST("/sprints/search", sprintHandler.SearchSprints)
+	e.PUT("/sprints/:id", sprintHandler.UpdateSprint)
+	e.DELETE("/sprints/:id", sprintHandler.DeleteSprint)
 
 	// Swagger UI
 	e.GET("/swagger/*", echoSwagger.WrapHandler)

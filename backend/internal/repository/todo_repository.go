@@ -3,13 +3,15 @@ package repository
 import (
 	"backend/internal/model"
 	"database/sql"
+	"strconv"
 )
 
 type TodoRepository interface {
 	FindAll() ([]model.Todo, error)
-	Create(title string, completed bool) (*model.Todo, error)
+	Search(req *model.TodoSearchRequest) ([]model.Todo, error)
+	Create(title string, description string, sprintID *int) (*model.Todo, error)
 	Update(title string, completed bool, id int) (int, string, error)
-	LogicalDelete(id int) error
+	Delete(id int) error
 }
 
 type todoRepository struct {
@@ -21,7 +23,7 @@ func NewTodoRepository(db *sql.DB) TodoRepository {
 }
 
 func (r *todoRepository) FindAll() ([]model.Todo, error) {
-	rows, err := r.db.Query("SELECT id, title, completed FROM todos WHERE is_deleted = false")
+	rows, err := r.db.Query("SELECT id, title, description, completed, sprint_id, created_at, updated_at FROM todos WHERE is_deleted = false")
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +32,7 @@ func (r *todoRepository) FindAll() ([]model.Todo, error) {
 	todos := []model.Todo{}
 	for rows.Next() {
 		var t model.Todo
-		if err := rows.Scan(&t.ID, &t.Title, &t.Completed); err != nil {
+		if err := rows.Scan(&t.ID, &t.Title, &t.Description, &t.Completed, &t.SprintID, &t.CreatedAt, &t.UpdatedAt); err != nil {
 			return nil, err
 		}
 		todos = append(todos, t)
@@ -39,17 +41,20 @@ func (r *todoRepository) FindAll() ([]model.Todo, error) {
 	return todos, nil
 }
 
-func (r *todoRepository) Create(title string, completed bool) (*model.Todo, error) {
+func (r *todoRepository) Create(title string, description string, sprintID *int) (*model.Todo, error) {
 	t := &model.Todo{
-		Title:     title,
-		Completed: completed,
+		Title:       title,
+		Description: description,
+		Completed:   false,
+		SprintID:    sprintID,
 	}
 
 	err := r.db.QueryRow(
-		"INSERT INTO todos (title, completed) VALUES ($1, $2) RETURNING id",
+		"INSERT INTO todos (title, description, sprint_id) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at",
 		t.Title,
-		t.Completed,
-	).Scan(&t.ID)
+		t.Description,
+		t.SprintID,
+	).Scan(&t.ID, &t.CreatedAt, &t.UpdatedAt)
 
 	if err != nil {
 		return nil, err
@@ -59,15 +64,74 @@ func (r *todoRepository) Create(title string, completed bool) (*model.Todo, erro
 }
 
 func (r *todoRepository) Update(title string, completed bool, id int) (int, string, error) {
-	query := `UPDATE todos SET title = $1, completed = $2 WHERE id = $3`
-	_, err := r.db.Exec(query, title, completed, id)
+	result, err := r.db.Exec(
+		"UPDATE todos SET title = $1, completed = $2, updated_at = NOW() WHERE id = $3 AND is_deleted = false",
+		title, completed, id,
+	)
 	if err != nil {
 		return 0, "", err
 	}
-	return id, "更新成功", nil
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, "", err
+	}
+
+	return int(rowsAffected), "Todo updated successfully", nil
 }
 
-func (r *todoRepository) LogicalDelete(id int) error {
+func (r *todoRepository) Search(req *model.TodoSearchRequest) ([]model.Todo, error) {
+	query := "SELECT id, title, description, completed, sprint_id, created_at, updated_at FROM todos WHERE is_deleted = false"
+	args := []interface{}{}
+	paramCount := 1
+
+	// タイトルで部分一致検索
+	if req.Title != nil {
+		query += " AND title ILIKE $" + strconv.Itoa(paramCount)
+		args = append(args, "%"+*req.Title+"%")
+		paramCount++
+	}
+
+	// 説明で部分一致検索
+	if req.Description != nil {
+		query += " AND description ILIKE $" + strconv.Itoa(paramCount)
+		args = append(args, "%"+*req.Description+"%")
+		paramCount++
+	}
+
+	// 完了状態でフィルタ
+	if req.Completed != nil {
+		query += " AND completed = $" + strconv.Itoa(paramCount)
+		args = append(args, *req.Completed)
+		paramCount++
+	}
+
+	// スプリントIDでフィルタ
+	if req.SprintID != nil {
+		query += " AND sprint_id = $" + strconv.Itoa(paramCount)
+		args = append(args, *req.SprintID)
+		paramCount++
+	}
+
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	todos := []model.Todo{}
+	for rows.Next() {
+		var t model.Todo
+		if err := rows.Scan(&t.ID, &t.Title, &t.Description, &t.Completed, &t.SprintID, &t.CreatedAt, &t.UpdatedAt); err != nil {
+			return nil, err
+		}
+		todos = append(todos, t)
+	}
+
+	return todos, nil
+}
+
+func (r *todoRepository) Delete(id int) error {
 	query := `UPDATE todos SET is_deleted = true WHERE id = $1`
 	_, err := r.db.Exec(query, id)
 	return err
