@@ -1,5 +1,7 @@
 package repository
 
+//go:generate mockgen -source=sprint_repository.go -destination=mock/mock_sprint_repository.go -package=mock
+
 import (
 	"backend/internal/model"
 	"database/sql"

@@ -57,6 +57,14 @@ tasks:
     cmds:
       - swag fmt
 
+  # モック生成
+  mock:
+    desc: "モックファイルを生成（go:generateディレクティブから）"
+    cmds:
+      - mkdir -p internal/repository/mock
+      - go generate ./internal/repository/...
+      - echo "モックファイルを生成しました"
+
   # テスト実行
   test:
     desc: "テストを実行"
