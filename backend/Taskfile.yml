@@ -62,7 +62,9 @@ tasks:
     desc: "モックファイルを生成（go:generateディレクティブから）"
     cmds:
       - mkdir -p internal/repository/mock
+      - mkdir -p internal/handler/mock
       - go generate ./internal/repository/...
+      - go generate ./internal/handler/...
       - echo "モックファイルを生成しました"
 
   # テスト実行

@@ -1,5 +1,7 @@
 package handler
 
+//go:generate mockgen -source=sprint_handler.go -destination=mock/mock_sprint_handler.go -package=mock
+
 import (
 	"backend/internal/model"
 	"backend/internal/repository"
@@ -8,11 +10,19 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type SprintHandlerInterface interface {
+	GetSprints(c echo.Context) error
+	CreateSprint(c echo.Context) error
+	UpdateSprint(c echo.Context) error
+	DeleteSprint(c echo.Context) error
+	SearchSprints(c echo.Context) error
+}
+
 type SprintHandler struct {
 	repo repository.SprintRepository
 }
 
-func NewSprintHandler(repo repository.SprintRepository) *SprintHandler {
+func NewSprintHandler(repo repository.SprintRepository) SprintHandlerInterface {
 	return &SprintHandler{repo: repo}
 }
 

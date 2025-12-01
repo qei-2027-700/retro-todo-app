@@ -1,5 +1,7 @@
 package handler
 
+//go:generate mockgen -source=todo_handler.go -destination=mock/mock_todo_handler.go -package=mock
+
 import (
 	"backend/internal/model"
 	"backend/internal/repository"
@@ -9,11 +11,19 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type TodoHandlerInterface interface {
+	GetTodos(c echo.Context) error
+	CreateTodo(c echo.Context) error
+	UpdateTodo(c echo.Context) error
+	DeleteTodo(c echo.Context) error
+	SearchTodos(c echo.Context) error
+}
+
 type TodoHandler struct {
 	repo repository.TodoRepository
 }
 
-func NewTodoHandler(repo repository.TodoRepository) *TodoHandler {
+func NewTodoHandler(repo repository.TodoRepository) TodoHandlerInterface {
 	return &TodoHandler{repo: repo}
 }
 

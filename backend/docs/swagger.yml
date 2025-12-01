@@ -1,12 +1,104 @@
 basePath: /
 definitions:
+  model.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  model.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  model.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  model.Sprint:
+    properties:
+      completed:
+        type: boolean
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.SprintSearchRequest:
+    properties:
+      completed:
+        type: boolean
+      title:
+        type: string
+    type: object
   model.Todo:
     properties:
       completed:
         type: boolean
+      created_at:
+        type: string
+      description:
+        type: string
       id:
         type: integer
+      sprint_id:
+        type: integer
       title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.TodoSearchRequest:
+    properties:
+      completed:
+        description: 完了状態でフィルタ（任意）
+        type: boolean
+      description:
+        description: 部分一致検索（任意）
+        type: string
+      sprint_id:
+        description: スプリントIDでフィルタ（任意）
+        type: integer
+      title:
+        description: 部分一致検索（任意）
+        type: string
+    type: object
+  model.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      external_id:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      provider:
+        type: string
+      updated_at:
+        type: string
+      username:
         type: string
     type: object
 host: localhost:8080
@@ -16,6 +108,258 @@ info:
   title: Retro Todo API
   version: "1.0"
 paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: ユーザー名とパスワードでログインし、JWTトークンを返します
+      parameters:
+      - description: ログイン情報
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: ユーザーログイン
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: 新しいユーザーを登録します
+      parameters:
+      - description: 登録情報
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: ユーザー登録
+      tags:
+      - auth
+  /sprints:
+    get:
+      consumes:
+      - application/json
+      description: すべてのスプリントを取得します
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Sprint'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: スプリントリストを取得
+      tags:
+      - sprints
+    post:
+      consumes:
+      - application/json
+      description: 新しいスプリントを作成します
+      parameters:
+      - description: スプリント情報
+        in: body
+        name: sprint
+        required: true
+        schema:
+          $ref: '#/definitions/model.Sprint'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Sprint'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: スプリントを作成
+      tags:
+      - sprints
+  /sprints/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 指定されたIDのスプリントを論理削除します
+      parameters:
+      - description: スプリント ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: スプリントを削除
+      tags:
+      - sprints
+    put:
+      consumes:
+      - application/json
+      description: 指定されたIDのスプリントを更新します
+      parameters:
+      - description: スプリント ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新内容
+        in: body
+        name: sprint
+        required: true
+        schema:
+          $ref: '#/definitions/model.Sprint'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: スプリントを更新
+      tags:
+      - sprints
+  /sprints/search:
+    post:
+      consumes:
+      - application/json
+      description: 検索条件に基づいてスプリントを検索します
+      parameters:
+      - description: 検索条件
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.SprintSearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Sprint'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: スプリントを検索
+      tags:
+      - sprints
   /todos:
     get:
       consumes:
@@ -70,6 +414,118 @@ paths:
               type: string
             type: object
       summary: TODOを作成
+      tags:
+      - todos
+  /todos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 指定されたIDのTODOを論理削除します
+      parameters:
+      - description: TODO ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: TODOを削除
+      tags:
+      - todos
+    put:
+      consumes:
+      - application/json
+      description: 指定されたIDのTODOを更新します
+      parameters:
+      - description: TODO ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新内容
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/model.Todo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: TODOを更新
+      tags:
+      - todos
+  /todos/search:
+    post:
+      consumes:
+      - application/json
+      description: 検索条件に基づいてTODOを検索します
+      parameters:
+      - description: 検索条件
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.TodoSearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Todo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: TODOを検索
       tags:
       - todos
 swagger: "2.0"
