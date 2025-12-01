@@ -1,20 +1,85 @@
+# ============================================
+# Docker Compose 統合設定
+# ============================================
+# 開発環境（推奨）:
+#   docker compose up postgres -d    # DBのみ起動
+#   cd backend && air                # API起動（ホスト）
+#   cd frontend && npm run dev       # Frontend起動（ホスト）
+#
+# Docker完全版（開発・デバッグ用）:
+#   docker compose --profile dev up --build  # DB + API(Air) + Frontend
+# ============================================
+
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: retro_todo_db
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: youruser         # DB_USERと同じ値に
-      POSTGRES_PASSWORD: yourpassword # DB_PASSWORDと同じ値に
-      POSTGRES_DB: retro_todo_db             # DB_NAMEと同じ値に
+      POSTGRES_USER: ${DB_USER:-youruser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-yourpassword}
+      POSTGRES_DB: ${DB_NAME:-retro_todo_db}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=ja_JP.UTF-8"
+      TZ: Asia/Tokyo
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - todo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-youruser} -d ${DB_NAME:-retro_todo_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    profiles: ["dev"]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: retro_todo_api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-youruser}
+      DB_PASSWORD: ${DB_PASSWORD:-yourpassword}
+      DB_NAME: ${DB_NAME:-retro_todo_db}
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-this-in-production}
+    volumes:
+      - ./backend:/app
+      - /app/tmp  # Airの一時ファイル用
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - todo-network
+
+  # frontend:
+  #   profiles: ["dev"]
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.dev
+  #   container_name: retro_todo_frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     API_BASE_URL: http://backend:8080
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - todo-network
 
 volumes:
   postgres_data:
+    driver: local
 
 networks:
   todo-network:

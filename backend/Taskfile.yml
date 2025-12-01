@@ -6,14 +6,13 @@ vars:
   MIGRATE_PATH: cmd/migrate/main.go
 
 tasks:
-  # 開発サーバー起動
-  dev:
-    desc: "開発サーバーを起動"
-    cmds:
-      - go run {{.MAIN_PATH}}
+  # dev:
+  #   desc: "開発サーバーを起動"
+  #   cmds:
+  #     - go run {{.MAIN_PATH}}
 
   # 開発サーバー起動（Air使用）
-  dev:watch:
+  dev:
     desc: "開発サーバーを起動（ホットリロード）"
     cmds:
       - air
@@ -95,66 +94,44 @@ tasks:
       - rm -rf bin/
       - rm -f coverage.out coverage.html
 
-  # Docker関連
-  docker:up:
-    desc: "Dockerコンテナを起動"
+  # ============================================
+  # Docker関連（Backend個別起動用）
+  # ============================================
+
+  start:db:
+    desc: "DBのみ起動"
     dir: ..
     cmds:
-      - docker compose up -d
+      - docker compose up postgres -d
 
-  docker:down:
-    desc: "Dockerコンテナを停止"
+  start:be:
+    desc: "BackendをDockerで起動"
     dir: ..
     cmds:
-      - docker compose down
+      - docker compose up backend -d
 
-  docker:restart:
-    desc: "Dockerコンテナを再起動"
-    dir: ..
+  start:
+    desc: "DB起動 + Backend起動（ホスト）"
     cmds:
-      - docker compose restart
+      - task: start:db
+      - task: dev
 
-  docker:clean:
-    desc: "Dockerコンテナとボリュームを削除"
-    dir: ..
-    cmds:
-      - docker compose down -v
-
+  # ============================================
   # データベース関連
+  # ============================================
+
   db:psql:
     desc: "PostgreSQLに接続"
+    dir: ..
     cmds:
       - docker exec -it retro_todo_db psql -U youruser -d retro_todo_db
 
   db:reset:
     desc: "データベースをリセット"
+    dir: ..
     cmds:
-      - task: docker:clean
-      - task: docker:up
+      - task: down
+      - docker compose down -v
+      - task: start:db
       - sleep 3
-      - task: migrate
-
-  # 開発環境セットアップ
-  setup:
-    desc: "開発環境をセットアップ"
-    cmds:
-      - task: deps
-      - task: docker:up
-      - sleep 3
-      - task: migrate
-      - echo 'セットアップ完了！'
-
-  # サーバー起動（フル）
-  start:
-    desc: "フルスタックで起動（Docker + API）"
-    cmds:
-      - task: docker:up
-      - sleep 3
-      - task: migrate
-      - task: dev
-
-  # ヘルプ
-  help:
-    desc: "利用可能なタスクを表示"
-    cmds:
-      - task --list
+      - cd backend && task migrate

@@ -7,3 +7,62 @@ includes:
   # fe:
   #   taskfile: ./frontend/Taskfile.yml
   #   dir: ./frontend
+
+# ============================================
+# プロジェクト全体の管理（すべてのサービス）
+# ============================================
+tasks:
+  start:
+    desc: "すべてDockerで起動（DB + Backend + Frontend）"
+    cmds:
+      - docker compose --profile dev up -d
+
+  down:
+    desc: "すべてのコンテナを停止"
+    cmds:
+      - docker compose --profile dev down
+
+  clean:
+    desc: "すべてのコンテナとボリュームを削除"
+    cmds:
+      - docker compose --profile dev down -v
+
+  restart:
+    desc: "すべてのコンテナを再起動"
+    cmds:
+      - docker compose --profile dev restart
+
+  logs:
+    desc: "すべてのログを表示"
+    cmds:
+      - docker compose --profile dev logs -f
+
+  logs:be:
+    desc: "Backendのログのみ表示"
+    cmds:
+      - docker compose logs -f backend
+
+  logs:db:
+    desc: "DBのログのみ表示"
+    cmds:
+      - docker compose logs -f postgres
+
+  ps:
+    desc: "起動中のコンテナを表示"
+    cmds:
+      - docker compose ps
+
+  # ============================================
+  # 初回セットアップ
+  # ============================================
+
+  setup:
+    desc: "開発環境をセットアップ（初回のみ）"
+    cmds:
+      - task: be:deps
+      - docker compose up postgres -d
+      - sleep 5
+      - task: be:migrate
+      - echo "セットアップ完了！"
+      - echo "Backend開発 → cd backend && task start"
+      - echo "すべてDocker → task start"

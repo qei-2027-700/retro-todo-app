@@ -1,0 +1,38 @@
+# Git関連
+.git
+.gitignore
+.github
+
+# 開発環境ファイル
+.env
+.env.*
+.air.toml
+tmp/
+
+# テスト・モック
+*_test.go
+mock/
+testdata/
+
+# ドキュメント
+*.md
+docs/
+swagger/
+
+# IDE設定
+.vscode
+.idea
+*.swp
+*.swo
+
+# ビルド成果物
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+main
+
+# その他
+.DS_Store
+Thumbs.db
