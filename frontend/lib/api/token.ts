@@ -9,13 +9,8 @@ const AUTH_TOKEN_KEY = "auth_token"
  * lib/api/client.ts から呼ばれる
  */
 export async function getAuthToken(): Promise<string | undefined> {
-  // TODO: 認証機能実装後はCookieから取得する
-  // const cookieStore = await cookies()
-  // return cookieStore.get(AUTH_TOKEN_KEY)?.value
-
-  // 一時的な固定トークン (開発用)
-  // 本番では必ず認証機能を実装してください
-  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6Im15dXNlciIsImlzcyI6InJldHJvLXRvZG8tYXBpIiwiZXhwIjoxNzY0NjUwNzQ5LCJpYXQiOjE3NjQ1NjQzNDl9.kdTpk3vLRt1X6dmpYqVNQcAc9jk5FgmbindvnPzX5Bs"
+  const cookieStore = await cookies()
+  return cookieStore.get(AUTH_TOKEN_KEY)?.value
 }
 
 /**

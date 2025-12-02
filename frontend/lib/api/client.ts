@@ -1,3 +1,5 @@
+"use server"
+
 import { getAuthToken } from "./token"
 import { API_CONFIG } from "./config"
 import {
