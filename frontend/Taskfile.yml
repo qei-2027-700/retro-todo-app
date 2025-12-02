@@ -5,3 +5,8 @@ tasks:
     desc: "開発サーバーを起動"
     cmds:
       - pnpm run dev
+
+  swag:
+    desc: "TypeScript型定義を生成（Swaggerから）"
+    cmds:
+      - pnpm run generate:types

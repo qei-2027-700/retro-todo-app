@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate:types": "swagger2openapi ../backend/docs/swagger.json --outfile ../backend/docs/openapi.json && openapi-typescript ../backend/docs/openapi.json -o lib/types/api.d.ts"
   },
   "dependencies": {
     "next": "16.0.6",
@@ -20,6 +21,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.0.6",
+    "openapi-typescript": "^7.10.1",
+    "swagger2openapi": "^7.0.8",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

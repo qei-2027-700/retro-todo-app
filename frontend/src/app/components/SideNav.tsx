@@ -7,8 +7,8 @@ const SideNav = () => {
       <nav>
         <ul>
           <li className="mb-4">
-            <Link href="/" className="block text-lg text-blue-600 hover:underline hover:bg-blue-50 p-2 rounded">
-              Home
+            <Link href="/dashboard" className="block text-lg text-blue-600 hover:underline hover:bg-blue-50 p-2 rounded">
+              ダッシュボード
             </Link>
           </li>
           <li className="mb-4">

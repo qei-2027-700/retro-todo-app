@@ -1,6 +1,12 @@
+"use server"
+
 // import { revalidateTag } from "next/cache"
 import { apiRequest } from "../api/client"
-import { User, CreateUserData, UpdateUserData } from "../types/user"
+import type { components } from "../types/api"
+
+type User = components["schemas"]["model.User"]
+type CreateUserData = Pick<User, "username" | "email">
+type UpdateUserData = Partial<CreateUserData>
 
 /**
  * 全ユーザーを取得

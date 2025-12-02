@@ -2,7 +2,11 @@
 
 // import { revalidateTag } from "next/cache"
 import { apiRequest } from "../api/client"
-import { Todo, CreateTodoData, UpdateTodoData } from "../types/todo"
+import type { components } from "../types/api"
+
+type Todo = components["schemas"]["model.Todo"]
+type CreateTodoData = Omit<Todo, "id" | "created_at" | "updated_at">
+type UpdateTodoData = Partial<CreateTodoData>
 
 export async function getTodos(): Promise<Todo[]> {
   return apiRequest<Todo[]>("/todos", {

@@ -3,7 +3,12 @@
 import { redirect } from "next/navigation"
 import { apiRequest } from "../api/client"
 import { setAuthToken, clearAuthToken } from "../api/token"
-import { AuthResponse, LoginCredentials, RegisterCredentials, User } from "../types/auth"
+import type { components } from "../types/api"
+
+type User = components["schemas"]["model.User"]
+type LoginCredentials = components["schemas"]["model.LoginRequest"]
+type RegisterCredentials = components["schemas"]["model.RegisterRequest"]
+type AuthResponse = components["schemas"]["model.LoginResponse"]
 
 /**
  * ログイン
@@ -17,6 +22,9 @@ export async function login(credentials: LoginCredentials): Promise<User> {
   })
 
   // トークンをCookieに保存
+  if (!response.token || !response.user) {
+    throw new Error("Invalid response from login API")
+  }
   await setAuthToken(response.token)
 
   return response.user
@@ -34,7 +42,7 @@ export async function loginAction(formData: FormData) {
 
   try {
     await login(credentials)
-    redirect("/todos")
+    redirect("/dashboard")
   } catch (error) {
     // エラーハンドリングは呼び出し側で行う
     throw error
@@ -53,6 +61,9 @@ export async function register(credentials: RegisterCredentials): Promise<User> 
   })
 
   // トークンをCookieに保存
+  if (!response.token || !response.user) {
+    throw new Error("Invalid response from register API")
+  }
   await setAuthToken(response.token)
 
   return response.user
@@ -71,7 +82,7 @@ export async function registerAction(formData: FormData) {
 
   try {
     await register(credentials)
-    redirect("/todos")
+    redirect("/dashboard")
   } catch (error) {
     throw error
   }

@@ -24,6 +24,10 @@ backend/build-errors.log
 backend/docs/docs.go
 # backend/docs/swagger.yml
 backend/docs/swagger.yaml
+backend/docs/openapi.json
+
+# TypeScript type definitions generated from OpenAPI
+frontend/lib/types/api.d.ts
 
 # Go workspace file
 go.work

@@ -1,14 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { login } from "../../../lib/actions/auth"
+import { login } from "../../../../lib/actions/auth"
 import { useRouter } from "next/navigation"
-import { AuthenticationError } from "../../../lib/api/error"
+import { AuthenticationError } from "../../../../lib/api/error"
 
 export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+
+  const [username, setUsername] = useState("testuser")
+  const [password, setPassword] = useState("password123")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -23,16 +26,19 @@ export default function LoginPage() {
         password: formData.get("password") as string,
       })
 
-      // ログイン成功後、Todosページにリダイレクト
-      router.push("/todos")
-    } catch (err) {
+      // ログイン成功後、ダッシュボードにリダイレクト
+      router.push("/dashboard")
+    }
+    catch (err) {
       if (err instanceof AuthenticationError) {
         setError("ユーザー名またはパスワードが正しくありません")
-      } else {
+      }
+      else {
         setError("ログインに失敗しました。もう一度お試しください。")
       }
       console.error("Login error:", err)
-    } finally {
+    }
+    finally {
       setLoading(false)
     }
   }
@@ -63,8 +69,10 @@ export default function LoginPage() {
               name="username"
               type="text"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               placeholder="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               disabled={loading}
             />
           </div>
@@ -78,8 +86,10 @@ export default function LoginPage() {
               name="password"
               type="password"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
             />
           </div>

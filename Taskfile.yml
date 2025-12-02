@@ -4,9 +4,9 @@ includes:
   be:
     taskfile: ./backend/Taskfile.yml
     dir: ./backend
-  # fe:
-  #   taskfile: ./frontend/Taskfile.yml
-  #   dir: ./frontend
+  fe:
+    taskfile: ./frontend/Taskfile.yml
+    dir: ./frontend
 
 # ============================================
 # プロジェクト全体の管理（すべてのサービス）
