@@ -1,0 +1,29 @@
+{
+  "name": "frontend-nuxt",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "generate:types": "swagger2openapi ../backend/docs/swagger.json --outfile ../backend/docs/openapi.json && openapi-typescript ../backend/docs/openapi.json -o types/api.d.ts"
+  },
+  "dependencies": {
+    "@nuxt/eslint": "1.11.0",
+    "@nuxt/fonts": "0.12.1",
+    "@nuxt/icon": "2.1.0",
+    "eslint": "^9.0.0",
+    "nuxt": "^4.2.1",
+    "openapi-typescript": "^7.10.1",
+    "swagger2openapi": "^7.0.8",
+    "vue": "^3.5.25",
+    "vue-router": "^4.6.3"
+  },
+  "packageManager": "pnpm@9.7.1+sha512.faf344af2d6ca65c4c5c8c2224ea77a81a5e8859cbc4e06b1511ddce2f0151512431dd19e6aff31f2c6a8f5f2aced9bd2273e1fed7dd4de1868984059d2c4247",
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@types/node": "^24.10.1"
+  }
+}
