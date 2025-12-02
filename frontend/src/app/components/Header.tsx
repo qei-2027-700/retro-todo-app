@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link';
-import { logout } from '../../../lib/actions/auth';
+import { logout } from '@/lib/actions/auth';
 
 const Header = () => {
   // TODO: 認証状態管理を実装後、実際の状態を使用

@@ -1,4 +1,4 @@
-import { getTodos } from "../../../../lib/actions/todos";
+import { getTodos } from "@/lib/actions/todos";
 
 export default async function DashboardPage() {
   const todos = await getTodos();

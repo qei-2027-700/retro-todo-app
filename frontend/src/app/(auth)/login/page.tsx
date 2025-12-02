@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { login } from "../../../../lib/actions/auth"
+import { login } from "@/lib/actions/auth"
 import { useRouter } from "next/navigation"
-import { AuthenticationError } from "../../../../lib/api/error"
+import { AuthenticationError } from "@/lib/api/error"
 
 export default function LoginPage() {
   const [error, setError] = useState("")
