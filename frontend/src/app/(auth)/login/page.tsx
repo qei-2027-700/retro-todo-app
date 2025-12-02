@@ -97,20 +97,21 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? "ログイン中..." : "ログイン"}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        {/* TODO: 新規登録実装 */}
+        {/* <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             アカウントをお持ちでない方は{" "}
             <a href="/register" className="text-blue-600 hover:underline">
               新規登録
             </a>
           </p>
-        </div>
+        </div> */}
 
         <div className="mt-4 text-center">
           <p className="text-xs text-gray-500">

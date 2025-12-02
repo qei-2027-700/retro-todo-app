@@ -1,9 +1,8 @@
-// import React from 'react';
 import Link from 'next/link';
 
 const SideNav = () => {
   return (
-    <aside className="hidden md:block w-60 bg-gray-50 p-5 border-r border-gray-200">
+    <aside className="hidden md:block w-52 bg-gray-50 p-5 border-r border-gray-200">
       <nav>
         <ul>
           <li className="mb-4">

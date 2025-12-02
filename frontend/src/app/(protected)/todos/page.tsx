@@ -1,14 +1,28 @@
 import { getTodos } from "@/lib/actions/todos";
+import CreateTaskButton from "@/app/components/CreateTaskButton";
+// import Modal from "@/app/components/Modal";
+// import { useState } from "react";
 
 export default async function TodosPage() {
   const todos = await getTodos();
 
+  // const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-8">
-      <div>
-        <h1 className="text-4xl font-bold text-gray-800 mb-6">
-          Todos
-        </h1>
+    <div className="flex min-h-screen bg-gray-100 p-8">
+      <div className="w-full max-w-4xl">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-4xl font-bold text-gray-800">
+            Todos
+          </h1>
+          <CreateTaskButton />
+          {/* <CreateTaskButton onClick={() => setIsOpen(true)} />
+           {isOpen && (
+          <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+            aaa
+          </Modal> */}
+        {/* )} */}
+        </div>
 
         <ul className="space-y-4">
           {todos.map((todo) => (
