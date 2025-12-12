@@ -20,4 +20,13 @@ export default defineNuxtConfig({
     exposeConfig: true,  // VSCode補完用
     viewer: true         // DevToolsで確認可能
   },
+  // https://nuxt.com/docs/4.x/directory-structure/app/components
+  components: {
+    dirs: [
+      {
+        path: '~/components',
+        pathPrefix: false,
+      },
+    ],
+  },
 })
