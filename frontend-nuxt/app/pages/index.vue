@@ -1,8 +1,4 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: 'default',
-})
-
 const today = new Date()
 const dateStr = `${today.getMonth() + 1}月 ${today.getDate()}日 ${['日', '月', '火', '水', '木', '金', '土'][today.getDay()]}曜日`
 

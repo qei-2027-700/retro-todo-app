@@ -1,15 +1,45 @@
 <script setup lang="ts">
 definePageMeta({
-  layout: 'default',
+  layout: 'auth',
 })
 
-const email = ref('')
-const onSubmit = () => {
-  // ここでAPI呼び出しなど
-  console.log(email)
+const config = useRuntimeConfig()
+
+const { login } = useAuth()
+const router = useRouter()
+
+const username = ref('')
+const password = ref('')
+const isLoading = ref(false)
+const errorMessage = ref('')
+
+const onSubmit = async () => {
+  if (!username.value || !password.value) {
+    errorMessage.value = 'ユーザー名とパスワードを入力してください'
+    return
+  }
+
+  isLoading.value = true
+  errorMessage.value = ''
+
+  const result = await login({
+    username: username.value,
+    password: password.value,
+  })
+
+  isLoading.value = false
+
+  if (result.success) {
+    router.push('/')
+  }
+  else {
+    errorMessage.value = result.error || 'ログインに失敗しました'
+  }
 }
+
 const continueWithGoogle = () => {
-  // Google OAuth など
+  // TODO: Google OAuth実装
+  console.log('Google OAuth is not implemented yet')
 }
 </script>
 
@@ -27,7 +57,7 @@ const continueWithGoogle = () => {
     <!-- <main class="flex-1 flex items-center justify-center"> -->
       <div class="w-full max-w-md text-center px-4">
         <h1 class="text-3xl font-semibold mb-2">
-          Asana へようこそ
+          {{ config.public.appName }}へようこそ
         </h1>
         <p class="text-gray-500 mb-8">
           まずはサインインしてください
@@ -54,27 +84,50 @@ const continueWithGoogle = () => {
           <div class="flex-1 h-px bg-gray-200"></div>
         </div>
 
-        <!-- メールフォーム -->
+        <!-- エラーメッセージ -->
+        <div v-if="errorMessage" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          <p class="text-sm text-red-600">{{ errorMessage }}</p>
+        </div>
+
+        <!-- ログインフォーム -->
         <form @submit.prevent="onSubmit" class="mt-4">
           <div class="mb-4 text-left">
             <label class="block text-xs font-medium text-gray-600 mb-1">
-              メールアドレス
+              ユーザー名
             </label>
             <input
-              v-model="email"
-              type="email"
+              v-model="username"
+              type="text"
               required
+              :disabled="isLoading"
               class="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                     disabled:bg-gray-100 disabled:cursor-not-allowed"
+            />
+          </div>
+
+          <div class="mb-4 text-left">
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              パスワード
+            </label>
+            <input
+              v-model="password"
+              type="password"
+              required
+              :disabled="isLoading"
+              class="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                     disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
 
           <button
             type="submit"
+            :disabled="isLoading"
             class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium
-                   rounded-md py-3 mt-2 transition"
+                   rounded-md py-3 mt-2 transition disabled:bg-blue-400 disabled:cursor-not-allowed"
           >
-            続行
+            {{ isLoading ? 'ログイン中...' : '続行' }}
           </button>
         </form>
       </div>

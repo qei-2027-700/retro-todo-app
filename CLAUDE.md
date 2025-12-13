@@ -17,3 +17,14 @@ components ディレクトリについて
 - ui
 - 機能別
 
+if-elseやtry-catchは下記のフォーマットで記載してください。
+
+```ts
+if (result.success) {
+  // 
+}
+else {
+  //
+}
+```
+

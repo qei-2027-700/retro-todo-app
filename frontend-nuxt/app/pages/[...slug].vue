@@ -1,8 +1,6 @@
 <script setup lang="ts">
 // このページは存在しないすべてのルートをキャッチします
-definePageMeta({
-  layout: 'default' // default.vueレイアウトを使用
-})
+// デフォルトでdefaultレイアウトが使用されます
 </script>
 
 <template>

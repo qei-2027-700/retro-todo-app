@@ -4,8 +4,8 @@ export default defineNuxtConfig({
     useMock: true,
 
     public: {
-      appName: 'retro-todo-app',
-      apiBase: 'http://localhost:8080/api',
+      appName: 'NAISEI',
+      apiBase: 'http://localhost:8080',
     },
   },
   compatibilityDate: '2025-07-15',

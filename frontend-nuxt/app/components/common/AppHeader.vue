@@ -9,12 +9,13 @@ const emit = defineEmits<{
   toggleSidebar: []
 }>()
 
+const { logout, user } = useAuth()
+
 const userMenuOpen = ref(false)
 const userMenuRef = ref<HTMLElement | null>(null)
 
 const isOpenSearchMenu = ref(false)
 const searchQuery = ref('')
-const searchInputRef = ref<HTMLInputElement | null>(null)
 
 const createMenuItems = [
   {
@@ -50,9 +51,9 @@ const handleHelpClick = () => {
   console.log('ヘルプを表示')
 }
 
-const handleLogout = () => {
-  console.log('ログアウト')
+const handleLogout = async () => {
   userMenuOpen.value = false
+  await logout()
 }
 
 const handleProfile = () => {
