@@ -66,18 +66,27 @@ const handleSettings = () => {
   userMenuOpen.value = false
 }
 
-// 外側クリックで閉じる
 const handleClickOutside = (event: MouseEvent) => {
   if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
     userMenuOpen.value = false
   }
 }
 
-// ESCキーで検索モーダルを閉じる
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Escape' && isOpenSearchMenu.value) {
     isOpenSearchMenu.value = false
     searchQuery.value = ''
+    return
+  }
+
+  // キーボード操作の場合
+  const isMac = navigator.platform.toLowerCase().includes('mac')
+  const isCmdK = isMac && event.metaKey && event.key.toLowerCase() === 'k'
+  const isCtrlK = !isMac && event.ctrlKey && event.key.toLowerCase() === 'k'
+
+  if (isCmdK || isCtrlK) {
+    event.preventDefault()
+    isOpenSearchMenu.value = true
   }
 }
 

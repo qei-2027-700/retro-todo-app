@@ -391,6 +391,68 @@
                 }
             }
         },
+        "/sprints/{id}/favorite": {
+            "put": {
+                "description": "指定されたIDのスプリントのお気に入り状態を切り替えます",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sprints"
+                ],
+                "summary": "お気に入り状態を更新",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "スプリント ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "お気に入り状態",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateFavoriteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/todos": {
             "get": {
                 "description": "すべてのTODOを取得します",
@@ -695,8 +757,8 @@
         "model.Sprint": {
             "type": "object",
             "properties": {
-                "completed": {
-                    "type": "boolean"
+                "color": {
+                    "type": "string"
                 },
                 "created_at": {
                     "type": "string"
@@ -704,7 +766,10 @@
                 "id": {
                     "type": "integer"
                 },
-                "title": {
+                "is_favorite": {
+                    "type": "boolean"
+                },
+                "name": {
                     "type": "string"
                 },
                 "updated_at": {
@@ -715,10 +780,10 @@
         "model.SprintSearchRequest": {
             "type": "object",
             "properties": {
-                "completed": {
+                "is_favorite": {
                     "type": "boolean"
                 },
-                "title": {
+                "name": {
                     "type": "string"
                 }
             }
@@ -767,6 +832,14 @@
                 "title": {
                     "description": "部分一致検索（任意）",
                     "type": "string"
+                }
+            }
+        },
+        "model.UpdateFavoriteRequest": {
+            "type": "object",
+            "properties": {
+                "is_favorite": {
+                    "type": "boolean"
                 }
             }
         },

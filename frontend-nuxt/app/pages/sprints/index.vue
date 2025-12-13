@@ -2,31 +2,10 @@
 const activeTab = ref('list')
 const filterCount = ref(1)
 
-const sections = ref([
-  {
-    id: 'section1',
-    name: '1006-101: 承認リクエスト',
-    expanded: true,
-    tasks: [
-      { id: 'task1', name: 'mindmap', completed: false, dueDate: '10月 11日', hasSubtasks: false },
-    ],
-  },
-  {
-    id: 'section2',
-    name: 'バックログ',
-    expanded: true,
-    tasks: [
-      { id: 'task2', name: 'r-ホワイトニング', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task3', name: 'ヘアアイロン検討', completed: false, dueDate: '10月 5日', hasSubtasks: false },
-      { id: 'task4', name: 'エアコンマニュアル', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task5', name: '部屋の片付け', completed: false, dueDate: '', hasSubtasks: true, subtaskCount: 3 },
-      { id: 'task6', name: '冷凍庫の中身を消費する：餃子・ブロッコリー', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task7', name: 'mcp: claudecodeとgithubなどを連携する', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task8', name: 'ポモドーロタイマーをデバイスで買う', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task9', name: '自炊計画', completed: false, dueDate: '', hasSubtasks: true, subtaskCount: 3 },
-    ],
-  },
-])
+// TODO: 後でルートパラメータに応じて動的に取得
+// 現在は固定のスプリントIDを使用
+const sprintId = 'personal-sprint'
+const { data: sections } = await useFetch(`/api/sprints/${sprintId}/tasks`)
 
 const tabs = [
   { id: 'overview', label: '概要', icon: 'heroicons:clipboard-document-list' },
@@ -40,6 +19,7 @@ const tabs = [
 ]
 
 const toggleSection = (sectionId: string) => {
+  if (!sections.value) return
   const section = sections.value.find(s => s.id === sectionId)
   if (section) {
     section.expanded = !section.expanded
@@ -47,6 +27,7 @@ const toggleSection = (sectionId: string) => {
 }
 
 const toggleTask = (taskId: string) => {
+  if (!sections.value) return
   sections.value.forEach(section => {
     const task = section.tasks.find(t => t.id === taskId)
     if (task) {

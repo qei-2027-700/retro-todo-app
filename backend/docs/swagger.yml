@@ -32,22 +32,24 @@ definitions:
     type: object
   model.Sprint:
     properties:
-      completed:
-        type: boolean
+      color:
+        type: string
       created_at:
         type: string
       id:
         type: integer
-      title:
+      is_favorite:
+        type: boolean
+      name:
         type: string
       updated_at:
         type: string
     type: object
   model.SprintSearchRequest:
     properties:
-      completed:
+      is_favorite:
         type: boolean
-      title:
+      name:
         type: string
     type: object
   model.Todo:
@@ -81,6 +83,11 @@ definitions:
       title:
         description: 部分一致検索（任意）
         type: string
+    type: object
+  model.UpdateFavoriteRequest:
+    properties:
+      is_favorite:
+        type: boolean
     type: object
   model.User:
     properties:
@@ -322,6 +329,47 @@ paths:
               type: string
             type: object
       summary: スプリントを更新
+      tags:
+      - sprints
+  /sprints/{id}/favorite:
+    put:
+      consumes:
+      - application/json
+      description: 指定されたIDのスプリントのお気に入り状態を切り替えます
+      parameters:
+      - description: スプリント ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: お気に入り状態
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateFavoriteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: お気に入り状態を更新
       tags:
       - sprints
   /sprints/search:

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseButton from '~/components/ui/BaseButton.vue'
+
 definePageMeta({
   layout: 'auth',
 })
@@ -12,6 +14,12 @@ const username = ref('')
 const password = ref('')
 const isLoading = ref(false)
 const errorMessage = ref('')
+
+// TODO: リリース前には除去する
+const setSampleCredentials = () => {
+  username.value = 'testuser'
+  password.value = 'password123'
+}
 
 const onSubmit = async () => {
   if (!username.value || !password.value) {
@@ -30,7 +38,7 @@ const onSubmit = async () => {
   isLoading.value = false
 
   if (result.success) {
-    router.push('/')
+    router.push('/dashboard')
   }
   else {
     errorMessage.value = result.error || 'ログインに失敗しました'
@@ -45,15 +53,6 @@ const continueWithGoogle = () => {
 
 <template>
   <div class="min-h-screen flex flex-col">
-    <!-- 上部ロゴ -->
-    <!-- <header class="p-6">
-      <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 rounded-full bg-pink-500" />
-        <span class="text-2xl font-semibold tracking-tight">asana</span>
-      </div>
-    </header> -->
-
-    <!-- 中央コンテンツ -->
     <!-- <main class="flex-1 flex items-center justify-center"> -->
       <div class="w-full max-w-md text-center px-4">
         <h1 class="text-3xl font-semibold mb-2">
@@ -97,6 +96,12 @@ const continueWithGoogle = () => {
         <div v-if="errorMessage" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
           <p class="text-sm text-red-600">{{ errorMessage }}</p>
         </div>
+  
+        <div>
+          <BaseButton class="mb-4" @click="setSampleCredentials">
+            テスト用アカウントのID / PWを入力
+          </BaseButton>
+        </div>
 
         <!-- ログインフォーム -->
         <form @submit.prevent="onSubmit" class="mt-4">
@@ -130,14 +135,14 @@ const continueWithGoogle = () => {
             />
           </div>
 
-          <button
-            type="submit"
+          <BaseButton
             :disabled="isLoading"
+            type="submit"
             class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium
                    rounded-md py-3 mt-2 transition disabled:bg-blue-400 disabled:cursor-not-allowed"
           >
             {{ isLoading ? 'ログイン中...' : '続行' }}
-          </button>
+          </BaseButton>
         </form>
       </div>
     <!-- </main> -->

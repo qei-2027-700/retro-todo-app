@@ -130,8 +130,7 @@ tasks:
     desc: "データベースをリセット"
     dir: ..
     cmds:
-      - task: down
       - docker compose down -v
-      - task: start:db
-      - sleep 3
+      - docker compose up postgres -d
+      - sleep 5
       - cd backend && task migrate

@@ -19,10 +19,12 @@ const insightExpanded = ref(true)
 const favoriteExpanded = ref(true)
 const projectExpanded = ref(true)
 
+const { data: sprintsData } = await useFetch('/api/sprints')
+
 const mainNavItems = computed(() => [
-  { id: 'home', label: 'ホーム', icon: 'heroicons:home', to: '/', active: route.path === '/' },
+  { id: 'home', label: 'ホーム', icon: 'heroicons:home', to: '/dashboard', active: route.path === '/dashboard' },
   { id: 'tasks', label: 'マイタスク', icon: 'heroicons:check', to: '/tasks', active: route.path === '/tasks' },
-  { id: 'inbox', label: '受信トレイ', icon: 'heroicons:inbox', to: '/inbox', active: route.path === '/inbox' },
+  { id: 'inbox', label: '通知', icon: 'heroicons:inbox', to: '/inbox', active: route.path === '/inbox' },
 ])
 
 const insightItems = computed(() => [
@@ -31,16 +33,33 @@ const insightItems = computed(() => [
   { id: 'goal', label: 'ゴール', icon: 'heroicons:trophy', to: '/goal', active: route.path === '/goal' },
 ])
 
-const favoriteItems = computed(() => [
-  { id: 'personal-sprint', label: 'Personal Sprint', color: 'bg-purple-500', to: '/projects/personal-sprint', active: route.path === '/projects/personal-sprint' },
-])
+// お気に入りスプリント（is_favorite = true のもの）
+const favoriteItems = computed(() => {
+  if (!sprintsData.value) return []
 
-const projectItems = computed(() => [
-  { id: 'backlog', label: 'バックログ', color: 'bg-blue-500', to: '/projects/backlog', active: route.path === '/projects/backlog' },
-  // { id: 'personal-sprint-2', label: 'Personal Sprint', color: 'bg-purple-500', to: '/projects/personal-sprint', active: route.path === '/projects/personal-sprint' },
-  // { id: '2510-3', label: '2510-3', color: 'bg-purple-500', to: '/projects/2510-3', active: route.path === '/projects/2510-3' },
-  // { id: '2510-4', label: '2510-4', color: 'bg-purple-500', to: '/projects/2510-4', active: route.path === '/projects/2510-4' },
-])
+  return sprintsData.value
+    .filter(sprint => sprint.is_favorite)
+    .map(sprint => ({
+      id: sprint.id.toString(),
+      label: sprint.name,
+      color: sprint.color,
+      to: sprint.name === 'バックログ' ? '/projects/backlog' : `/sprints/${sprint.id}`,
+      active: route.path === (sprint.name === 'バックログ' ? '/projects/backlog' : `/sprints/${sprint.id}`),
+    }))
+})
+
+// すべてのスプリント
+const sprintItems = computed(() => {
+  if (!sprintsData.value) return []
+
+  return sprintsData.value.map(sprint => ({
+    id: sprint.id.toString(),
+    label: sprint.name,
+    color: sprint.color,
+    to: sprint.name === 'バックログ' ? '/projects/backlog' : `/sprints/${sprint.id}`,
+    active: route.path === (sprint.name === 'バックログ' ? '/projects/backlog' : `/sprints/${sprint.id}`),
+  }))
+})
 
 // const teamItems = [
 //   { id: 'it', label: 'IT', icon: '👥', to: '/teams/it', hasChildren: true },
@@ -262,7 +281,7 @@ const handleAddProject = () => {
             </div>
             <div v-if="projectExpanded" class="space-y-1 mt-1">
               <NuxtLink
-                v-for="item in projectItems"
+                v-for="item in sprintItems"
                 :key="item.id"
                 :to="item.to"
                 @click="handleNavClick(item.id)"
@@ -277,6 +296,21 @@ const handleAddProject = () => {
                 <span>{{ item.label }}</span>
               </NuxtLink>
             </div>
+          </div>
+
+          <div class="mb-6">
+            <NuxtLink
+              to="/sample"
+              class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors"
+              :class="[
+                darkMode
+                  ? ['text-gray-300', 'hover:bg-gray-800']
+                  : ['text-gray-700', 'hover:bg-gray-100'],
+              ]"
+            >
+              <Icon name="heroicons:archive" class="w-5 h-5" />
+              <span>サンプル</span>
+            </NuxtLink>
           </div>
         </nav>
       </div>

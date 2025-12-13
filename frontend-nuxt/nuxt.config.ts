@@ -1,11 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   runtimeConfig: {
-    useMock: true,
+    // 環境変数 NUXT_USE_MOCK から読み取り、デフォルトは true
+    // 環境変数は文字列で読み込まれるため、デフォルト値をbooleanで設定
+    useMock: process.env.NUXT_USE_MOCK !== 'false',
 
     public: {
       appName: 'NAISEI',
-      apiBase: 'http://localhost:8080',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080',
+
+      // 認証だけ別にモックしたい場合のフラグ
+      mockAuth: process.env.NUXT_PUBLIC_MOCK_AUTH === 'true',
     },
   },
   compatibilityDate: '2025-07-15',

@@ -62,6 +62,7 @@ func main() {
 	protected.POST("/sprints", sprintHandler.CreateSprint)
 	protected.POST("/sprints/search", sprintHandler.SearchSprints)
 	protected.PUT("/sprints/:id", sprintHandler.UpdateSprint)
+	protected.PUT("/sprints/:id/favorite", sprintHandler.UpdateFavorite)
 	protected.DELETE("/sprints/:id", sprintHandler.DeleteSprint)
 
 	log.Println("[MAIN] Server starting on :8080")

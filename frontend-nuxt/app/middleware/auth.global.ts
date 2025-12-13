@@ -18,7 +18,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
   // 認証済みユーザーがログイン前専用ページにアクセスした場合
   if (isAuthenticated.value && isGuestOnlyPage) {
-    return navigateTo('/')
+    return navigateTo('/dashboard')
   }
 
   // 未認証ユーザーがログイン必須ページにアクセスした場合

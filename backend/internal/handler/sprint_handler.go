@@ -14,6 +14,7 @@ type SprintHandlerInterface interface {
 	GetSprints(c echo.Context) error
 	CreateSprint(c echo.Context) error
 	UpdateSprint(c echo.Context) error
+	UpdateFavorite(c echo.Context) error
 	DeleteSprint(c echo.Context) error
 	SearchSprints(c echo.Context) error
 }
@@ -61,7 +62,12 @@ func (h *SprintHandler) CreateSprint(c echo.Context) error {
 		return c.JSON(400, map[string]string{"error": "Invalid input"})
 	}
 
-	createdSprint, err := h.repo.Create(s.Title)
+	// デフォルト値を設定
+	if s.Color == "" {
+		s.Color = "bg-purple-500"
+	}
+
+	createdSprint, err := h.repo.Create(s.Name, s.Color, s.IsFavorite)
 	if err != nil {
 		return c.JSON(500, map[string]string{"error": err.Error()})
 	}
@@ -121,7 +127,7 @@ func (h *SprintHandler) UpdateSprint(c echo.Context) error {
 		return c.JSON(400, map[string]string{"error": "Invalid input"})
 	}
 
-	rowsAffected, message, err := h.repo.Update(id, s.Title, s.Completed)
+	rowsAffected, message, err := h.repo.Update(id, s.Name, s.Color)
 	if err != nil {
 		return c.JSON(500, map[string]string{"error": err.Error()})
 	}
@@ -134,6 +140,40 @@ func (h *SprintHandler) UpdateSprint(c echo.Context) error {
 		"rows_affected": rowsAffected,
 		"message":       message,
 	})
+}
+
+// UpdateFavorite godoc
+// @Summary お気に入り状態を更新
+// @Description 指定されたIDのスプリントのお気に入り状態を切り替えます
+// @Tags sprints
+// @Accept json
+// @Produce json
+// @Param id path int true "スプリント ID"
+// @Param request body model.UpdateFavoriteRequest true "お気に入り状態"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /sprints/{id}/favorite [put]
+func (h *SprintHandler) UpdateFavorite(c echo.Context) error {
+	// パスパラメータからIDを取得
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		return c.JSON(400, map[string]string{"error": "Invalid ID parameter"})
+	}
+
+	// ボディから更新内容を取得
+	req := new(model.UpdateFavoriteRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(400, map[string]string{"error": "Invalid input"})
+	}
+
+	err = h.repo.UpdateFavorite(id, req.IsFavorite)
+	if err != nil {
+		return c.JSON(500, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(200, map[string]string{"message": "Favorite status updated successfully"})
 }
 
 // DeleteSprint godoc

@@ -1,31 +1,30 @@
 <script setup lang="ts">
-const sidebarOpen = ref(true) // サイドバーの表示状態
+const sidebarOpen = ref(true)
 const mainContentShift = ref(true) // メインコンテンツのシフト状態（遅延させる）
-const darkMode = ref(true) // ダークモード
+const darkMode = ref(true)
 
 const toggleSidebar = () => {
-  console.log('toggleSidebar called, current state:', sidebarOpen.value)
-
   if (sidebarOpen.value) {
     // 閉じる場合：先にサイドバーを閉じて、アニメーション完了後にメインコンテンツをシフト
     sidebarOpen.value = false
     setTimeout(() => {
       mainContentShift.value = false
-    }, 200) // サイドバーのアニメーション時間と同じ
+    }, 180)
   }
   else {
-    // 開く場合：同時に開く
-    sidebarOpen.value = true
     mainContentShift.value = true
-  }
 
-  console.log('new state:', sidebarOpen.value)
+    setTimeout(() => {
+      sidebarOpen.value = true
+    }, 100)
+  }
 }
 
 const closeSidebar = () => {
   // モバイルでのみサイドバーを閉じる
   if (window.innerWidth < 1024) {
     sidebarOpen.value = false
+
     setTimeout(() => {
       mainContentShift.value = false
     }, 200)
@@ -57,12 +56,10 @@ onMounted(() => {
     <SideNavigation :is-open="sidebarOpen" :dark-mode="darkMode" @close="closeSidebar" />
 
     <main
+      class="transition-all duration-200 pt-16"
       :class="[
-        'transition-all',
-        'duration-200',
         // PC版ではサイドバーの幅分マージン（mainContentShiftで制御）
         mainContentShift ? 'lg:ml-64' : 'lg:ml-0',
-        // ヘッダーの高さ分のパディング (fixed headerのため)
         'pt-16',
       ]"
     >

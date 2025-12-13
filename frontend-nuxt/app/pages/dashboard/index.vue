@@ -2,23 +2,12 @@
 const today = new Date()
 const dateStr = `${today.getMonth() + 1}月 ${today.getDate()}日 ${['日', '月', '火', '水', '木', '金', '土'][today.getDay()]}曜日`
 
-const tasks = ref([
-  { id: 1, title: '健康保険ハガキ連絡', completed: false, tag: '2510-4' },
-  { id: 2, title: '部屋の片付け', completed: false, tag: 'Personal Sprint' },
-  { id: 3, title: '部屋の片付け', completed: false, tag: 'バックログ' },
-  { id: 4, title: 'r-部屋作り', completed: false, tag: 'バックログ' },
-  { id: 5, title: '税関係の書類確認', completed: false, tag: 'Personal Sprint' },
-  { id: 6, title: 'r-ホワイトニング', completed: false, tag: 'Personal Sprint' },
-])
-
-const projects = [
-  { id: 1, name: '2510-3', color: 'bg-purple-500' },
-  { id: 2, name: 'バックログ', color: 'bg-blue-500' },
-  { id: 3, name: '2510-4', color: 'bg-purple-500' },
-  { id: 4, name: 'Personal Sprint', color: 'bg-purple-500' },
-]
+// APIからデータを取得
+const { data: tasks } = await useFetch('/api/tasks')
+const { data: sprints } = await useFetch('/api/sprints')
 
 const toggleTask = (taskId: number) => {
+  if (!tasks.value) return
   const task = tasks.value.find(t => t.id === taskId)
   if (task) {
     task.completed = !task.completed
@@ -158,7 +147,7 @@ const addProject = () => {
           <!-- スプリントカード -->
           <div class="space-y-3">
             <div
-              v-for="project in projects"
+              v-for="project in sprints"
               :key="project.id"
               class="p-4 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer group"
             >

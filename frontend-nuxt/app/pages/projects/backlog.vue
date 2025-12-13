@@ -10,20 +10,9 @@ const project = ref({
 const activeTab = ref('list')
 const filterCount = ref(0)
 
-// TODO: APIからバックログのタスクを取得
-const sections = ref([
-  {
-    id: 'section1',
-    name: '未分類',
-    expanded: true,
-    tasks: [
-      { id: 'task1', name: 'r-ホワイトニング', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task2', name: 'ヘアアイロン検討', completed: false, dueDate: '10月 5日', hasSubtasks: false },
-      { id: 'task3', name: 'エアコンマニュアル', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task4', name: '部屋の片付け', completed: false, dueDate: '', hasSubtasks: true, subtaskCount: 3 },
-    ],
-  },
-])
+// APIからバックログのタスクを取得
+// バックログはスプリントID=2として管理
+const { data: sections } = await useFetch('/api/sprints/2/tasks')
 
 const tabs = [
   { id: 'overview', label: '概要', icon: 'heroicons:clipboard-document-list' },
@@ -34,6 +23,7 @@ const tabs = [
 ]
 
 const toggleSection = (sectionId: string) => {
+  if (!sections.value) return
   const section = sections.value.find(s => s.id === sectionId)
   if (section) {
     section.expanded = !section.expanded
@@ -41,6 +31,7 @@ const toggleSection = (sectionId: string) => {
 }
 
 const toggleTask = (taskId: string) => {
+  if (!sections.value) return
   sections.value.forEach(section => {
     const task = section.tasks.find(t => t.id === taskId)
     if (task) {

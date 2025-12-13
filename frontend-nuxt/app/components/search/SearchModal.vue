@@ -36,54 +36,9 @@ const tabs: SearchTab[] = [
   { id: 'message', label: 'メッセージ', icon: 'heroicons:chat-bubble-left-right' },
 ]
 
-// サンプル検索結果
-const recentResults: SearchResultItem[] = [
-  {
-    id: '1',
-    title: '部屋の片付け',
-    subtitle: 'Personal Sprint',
-    icon: 'heroicons:check',
-    type: 'task',
-    completed: true,
-  },
-  {
-    id: '2',
-    title: '健康保険ハガキ連絡',
-    subtitle: '2510-4',
-    icon: 'heroicons:check',
-    type: 'task',
-    completed: true,
-  },
-  {
-    id: '3',
-    title: 'エアコンマニュアル',
-    subtitle: 'Personal Sprint',
-    icon: 'heroicons:check',
-    type: 'task',
-    completed: true,
-  },
-]
-
-const savedSearches: SearchResultItem[] = [
-  {
-    id: 's1',
-    title: '自分が作成したタスク',
-    icon: 'heroicons:star',
-    type: 'saved-search',
-  },
-  {
-    id: 's2',
-    title: '他のメンバーに割り当てたタスク',
-    icon: 'heroicons:star',
-    type: 'saved-search',
-  },
-  {
-    id: 's3',
-    title: '最近完了したタスク',
-    icon: 'heroicons:star',
-    type: 'saved-search',
-  },
-]
+// APIから検索結果を取得
+// const { data: recentResults } = await useFetch('/api/tasks/search/recent')
+// const { data: savedSearches } = await useFetch('/api/tasks/search/saved')
 
 const closeModal = () => {
   emit('update:modelValue', false)
@@ -160,12 +115,10 @@ const handleResultClick = (item: SearchResultItem) => {
           </div>
         </div>
 
-        <!-- 検索結果 -->
         <div
           class="max-h-[60vh] overflow-y-auto"
           :class="[darkMode ? 'bg-gray-800' : 'bg-white']"
         >
-          <!-- 最近の結果 -->
           <div class="px-6 py-4">
             <h3
               class="text-xs font-semibold uppercase tracking-wider mb-3"
@@ -185,7 +138,6 @@ const handleResultClick = (item: SearchResultItem) => {
                     : 'hover:bg-gray-100 text-gray-800',
                 ]"
               >
-                <!-- アイコン/チェックボックス -->
                 <div
                   class="flex-shrink-0 w-5 h-5 rounded flex items-center justify-center text-xs"
                   :class="[
@@ -201,7 +153,6 @@ const handleResultClick = (item: SearchResultItem) => {
                   <span v-if="item.completed">✓</span>
                 </div>
 
-                <!-- タイトルとサブタイトル -->
                 <div class="flex-1 min-w-0">
                   <div
                     class="text-sm font-medium truncate"
@@ -221,7 +172,6 @@ const handleResultClick = (item: SearchResultItem) => {
                   </div>
                 </div>
 
-                <!-- アバター(仮) -->
                 <img
                   src="https://i.pravatar.cc/150?img=3"
                   alt="User"
@@ -231,8 +181,7 @@ const handleResultClick = (item: SearchResultItem) => {
             </div>
           </div>
 
-          <!-- 保存された検索 -->
-          <div class="px-6 py-4 border-t" :class="[darkMode ? 'border-gray-700' : 'border-gray-200']">
+          <!-- <div class="px-6 py-4 border-t" :class="[darkMode ? 'border-gray-700' : 'border-gray-200']">
             <h3
               class="text-xs font-semibold uppercase tracking-wider mb-3"
               :class="[darkMode ? 'text-gray-500' : 'text-gray-500']"
@@ -251,7 +200,6 @@ const handleResultClick = (item: SearchResultItem) => {
                     : 'hover:bg-gray-100 text-gray-800',
                 ]"
               >
-                <!-- アイコン -->
                 <div
                   class="flex-shrink-0 w-5 h-5 rounded flex items-center justify-center"
                   :class="[darkMode ? 'text-gray-400' : 'text-gray-500']"
@@ -259,12 +207,10 @@ const handleResultClick = (item: SearchResultItem) => {
                   <Icon :name="item.icon" class="w-4 h-4" />
                 </div>
 
-                <!-- タイトル -->
                 <div class="flex-1 text-sm font-medium">
                   {{ item.title }}
                 </div>
 
-                <!-- 矢印アイコン -->
                 <svg
                   class="w-4 h-4 flex-shrink-0"
                   :class="[darkMode ? 'text-gray-600' : 'text-gray-400']"
@@ -281,7 +227,7 @@ const handleResultClick = (item: SearchResultItem) => {
                 </svg>
               </button>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
