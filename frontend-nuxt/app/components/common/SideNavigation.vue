@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Sprint } from '~/types/sprint'
+
 interface Props {
   isOpen?: boolean
   darkMode?: boolean
@@ -19,7 +21,7 @@ const insightExpanded = ref(true)
 const favoriteExpanded = ref(true)
 const projectExpanded = ref(true)
 
-const { data: sprintsData } = await useFetch('/api/sprints')
+const { data: sprintsData } = await useFetch<Sprint[]>('/api/sprints')
 
 const mainNavItems = computed(() => [
   { id: 'home', label: 'ホーム', icon: 'heroicons:home', to: '/dashboard', active: route.path === '/dashboard' },
@@ -43,8 +45,8 @@ const favoriteItems = computed(() => {
       id: sprint.id.toString(),
       label: sprint.name,
       color: sprint.color,
-      to: sprint.name === 'バックログ' ? '/projects/backlog' : `/sprints/${sprint.id}`,
-      active: route.path === (sprint.name === 'バックログ' ? '/projects/backlog' : `/sprints/${sprint.id}`),
+      to: sprint.name === 'バックログ' ? '/sprints/backlog' : `/sprints/${sprint.id}`,
+      active: route.path === (sprint.name === 'バックログ' ? '/sprints/backlog' : `/sprints/${sprint.id}`),
     }))
 })
 
@@ -56,8 +58,8 @@ const sprintItems = computed(() => {
     id: sprint.id.toString(),
     label: sprint.name,
     color: sprint.color,
-    to: sprint.name === 'バックログ' ? '/projects/backlog' : `/sprints/${sprint.id}`,
-    active: route.path === (sprint.name === 'バックログ' ? '/projects/backlog' : `/sprints/${sprint.id}`),
+    to: sprint.name === 'バックログ' ? '/sprints/backlog' : `/sprints/${sprint.id}`,
+    active: route.path === (sprint.name === 'バックログ' ? '/sprints/backlog' : `/sprints/${sprint.id}`),
   }))
 })
 

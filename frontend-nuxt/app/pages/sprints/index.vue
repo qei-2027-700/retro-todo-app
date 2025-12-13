@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import type { Section } from '~/types/task'
+
 const activeTab = ref('list')
 const filterCount = ref(1)
 
 // TODO: 後でルートパラメータに応じて動的に取得
 // 現在は固定のスプリントIDを使用
 const sprintId = 'personal-sprint'
-const { data: sections } = await useFetch(`/api/sprints/${sprintId}/tasks`)
+const { data: sections } = await useFetch<Section[]>(`/api/sprints/${sprintId}/tasks`)
 
 const tabs = [
   { id: 'overview', label: '概要', icon: 'heroicons:clipboard-document-list' },

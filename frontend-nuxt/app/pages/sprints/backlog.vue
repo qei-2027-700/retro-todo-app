@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Section } from '~/types/task'
+
 // バックログは特別な固定プロジェクト
 const project = ref({
   id: 'backlog',
@@ -12,7 +14,7 @@ const filterCount = ref(0)
 
 // APIからバックログのタスクを取得
 // バックログはスプリントID=2として管理
-const { data: sections } = await useFetch('/api/sprints/2/tasks')
+const { data: sections } = await useFetch<Section[]>('/api/sprints/2/tasks')
 
 const tabs = [
   { id: 'overview', label: '概要', icon: 'heroicons:clipboard-document-list' },

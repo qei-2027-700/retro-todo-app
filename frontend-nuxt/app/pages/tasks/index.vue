@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import type { Section } from '~/types/task'
+
 const activeTab = ref('list')
 const filterCount = ref(1)
 const sortCount = ref(1)
 const groupCount = ref(1)
 
 // APIからセクションデータを取得
-const { data: sections } = await useFetch('/api/tasks/sections')
+const { data: sections } = await useFetch<Section[]>('/api/tasks/sections')
 
 const tabs = [
   { id: 'list', label: 'リスト', icon: 'heroicons:list-bullet' },

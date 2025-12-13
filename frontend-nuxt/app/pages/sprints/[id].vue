@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Section } from '~/types/task'
+
 // ルートパラメータからIDを抽出（例: "1-2025-12-week1" → 1）
 const route = useRoute()
 const sprintId = extractIdFromParam(route.params.id)
@@ -18,7 +20,7 @@ const activeTab = ref('list')
 const filterCount = ref(1)
 
 // APIからセクションデータを取得
-const { data: sections } = await useFetch(`/api/sprints/${sprintId}/tasks`)
+const { data: sections } = await useFetch<Section[]>(`/api/sprints/${sprintId}/tasks`)
 
 const tabs = [
   { id: 'overview', label: '概要', icon: 'heroicons:clipboard-document-list' },
