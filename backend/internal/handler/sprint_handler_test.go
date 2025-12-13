@@ -29,11 +29,12 @@ func TestGetSprints_Success(t *testing.T) {
 	mockRepo := mock.NewMockSprintRepository(ctrl)
 	mockRepo.EXPECT().FindAll().Return([]model.Sprint{
 		{
-			ID:        1,
-			Title:     "Sprint 1",
-			Completed: false,
-			CreatedAt: types.CustomTime(time.Now()),
-			UpdatedAt: types.CustomTime(time.Now()),
+			ID:         1,
+			Name:       "Sprint 1",
+			Color:      "bg-purple-500",
+			IsFavorite: false,
+			CreatedAt:  types.CustomTime(time.Now()),
+			UpdatedAt:  types.CustomTime(time.Now()),
 		},
 	}, nil)
 
@@ -46,7 +47,7 @@ func TestGetSprints_Success(t *testing.T) {
 	var sprints []model.Sprint
 	json.Unmarshal(rec.Body.Bytes(), &sprints)
 	assert.Equal(t, 1, len(sprints))
-	assert.Equal(t, "Sprint 1", sprints[0].Title)
+	assert.Equal(t, "Sprint 1", sprints[0].Name)
 }
 
 func TestGetSprints_Error(t *testing.T) {
@@ -73,19 +74,20 @@ func TestCreateSprint_Success(t *testing.T) {
 	defer ctrl.Finish()
 
 	e := echo.New()
-	sprintJSON := `{"title":"New Sprint"}`
+	sprintJSON := `{"name":"New Sprint","color":"bg-blue-500","is_favorite":false}`
 	req := httptest.NewRequest(http.MethodPost, "/sprints", strings.NewReader(sprintJSON))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
 	mockRepo := mock.NewMockSprintRepository(ctrl)
-	mockRepo.EXPECT().Create("New Sprint").Return(&model.Sprint{
-		ID:        1,
-		Title:     "New Sprint",
-		Completed: false,
-		CreatedAt: types.CustomTime(time.Now()),
-		UpdatedAt: types.CustomTime(time.Now()),
+	mockRepo.EXPECT().Create("New Sprint", "bg-blue-500", false).Return(&model.Sprint{
+		ID:         1,
+		Name:       "New Sprint",
+		Color:      "bg-blue-500",
+		IsFavorite: false,
+		CreatedAt:  types.CustomTime(time.Now()),
+		UpdatedAt:  types.CustomTime(time.Now()),
 	}, nil)
 
 	handler := NewSprintHandler(mockRepo)
@@ -96,7 +98,7 @@ func TestCreateSprint_Success(t *testing.T) {
 
 	var sprint model.Sprint
 	json.Unmarshal(rec.Body.Bytes(), &sprint)
-	assert.Equal(t, "New Sprint", sprint.Title)
+	assert.Equal(t, "New Sprint", sprint.Name)
 }
 
 func TestCreateSprint_InvalidInput(t *testing.T) {
@@ -123,7 +125,7 @@ func TestUpdateSprint_Success(t *testing.T) {
 	defer ctrl.Finish()
 
 	e := echo.New()
-	sprintJSON := `{"title":"Updated Sprint","completed":true}`
+	sprintJSON := `{"name":"Updated Sprint","color":"bg-green-500"}`
 	req := httptest.NewRequest(http.MethodPut, "/sprints/1", strings.NewReader(sprintJSON))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -132,7 +134,7 @@ func TestUpdateSprint_Success(t *testing.T) {
 	c.SetParamValues("1")
 
 	mockRepo := mock.NewMockSprintRepository(ctrl)
-	mockRepo.EXPECT().Update(1, "Updated Sprint", true).Return(1, "Sprint updated successfully", nil)
+	mockRepo.EXPECT().Update(1, "Updated Sprint", "bg-green-500").Return(1, "Sprint updated successfully", nil)
 
 	handler := NewSprintHandler(mockRepo)
 	err := handler.UpdateSprint(c)
@@ -146,7 +148,7 @@ func TestUpdateSprint_InvalidID(t *testing.T) {
 	defer ctrl.Finish()
 
 	e := echo.New()
-	sprintJSON := `{"title":"Updated Sprint"}`
+	sprintJSON := `{"name":"Updated Sprint","color":"bg-blue-500"}`
 	req := httptest.NewRequest(http.MethodPut, "/sprints/invalid", strings.NewReader(sprintJSON))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -167,7 +169,7 @@ func TestUpdateSprint_NotFound(t *testing.T) {
 	defer ctrl.Finish()
 
 	e := echo.New()
-	sprintJSON := `{"title":"Updated Sprint"}`
+	sprintJSON := `{"name":"Updated Sprint","color":"bg-blue-500"}`
 	req := httptest.NewRequest(http.MethodPut, "/sprints/999", strings.NewReader(sprintJSON))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -176,7 +178,7 @@ func TestUpdateSprint_NotFound(t *testing.T) {
 	c.SetParamValues("999")
 
 	mockRepo := mock.NewMockSprintRepository(ctrl)
-	mockRepo.EXPECT().Update(999, "Updated Sprint", false).Return(0, "", nil)
+	mockRepo.EXPECT().Update(999, "Updated Sprint", "bg-blue-500").Return(0, "", nil)
 
 	handler := NewSprintHandler(mockRepo)
 	err := handler.UpdateSprint(c)
@@ -230,23 +232,24 @@ func TestSearchSprints_Success(t *testing.T) {
 	defer ctrl.Finish()
 
 	e := echo.New()
-	searchJSON := `{"title":"sprint"}`
+	searchJSON := `{"name":"sprint"}`
 	req := httptest.NewRequest(http.MethodPost, "/sprints/search", strings.NewReader(searchJSON))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	title := "sprint"
+	name := "sprint"
 	mockRepo := mock.NewMockSprintRepository(ctrl)
 	mockRepo.EXPECT().Search(&model.SprintSearchRequest{
-		Title: &title,
+		Name: &name,
 	}).Return([]model.Sprint{
 		{
-			ID:        1,
-			Title:     "Sprint 1",
-			Completed: false,
-			CreatedAt: types.CustomTime(time.Now()),
-			UpdatedAt: types.CustomTime(time.Now()),
+			ID:         1,
+			Name:       "Sprint 1",
+			Color:      "bg-purple-500",
+			IsFavorite: false,
+			CreatedAt:  types.CustomTime(time.Now()),
+			UpdatedAt:  types.CustomTime(time.Now()),
 		},
 	}, nil)
 

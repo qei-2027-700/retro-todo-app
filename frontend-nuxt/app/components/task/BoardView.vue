@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { RETRO_UNIT_NAME } from '~/constants/common'
+
 interface Task {
   id: string
   name: string
@@ -76,7 +78,7 @@ const emit = defineEmits<{
       <button
         class="w-72 flex-shrink-0 border border-dashed border-gray-600 rounded-md p-3 text-sm text-gray-400 hover:bg-gray-850 hover:text-gray-200"
       >
-        新しいセクションを追加
+        新しい{{ RETRO_UNIT_NAME }}を追加
       </button>
     </div>
   </div>

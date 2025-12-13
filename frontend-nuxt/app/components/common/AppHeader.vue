@@ -17,6 +17,8 @@ const userMenuRef = ref<HTMLElement | null>(null)
 const isOpenSearchMenu = ref(false)
 const searchQuery = ref('')
 
+const searchInputRef = ref<HTMLInputElement | null>(null)
+
 const createMenuItems = [
   {
     id: 'task',
@@ -30,12 +32,6 @@ const createMenuItems = [
     icon: 'heroicons:clipboard-document-list',
     action: () => console.log('プロジェクトを作成'),
   },
-  {
-    id: 'message',
-    label: 'メッセージ',
-    icon: 'heroicons:chat-bubble-left-right',
-    action: () => console.log('メッセージを作成'),
-  },
 ]
 
 const toggleUserMenu = () => {
@@ -45,6 +41,10 @@ const toggleUserMenu = () => {
 const handleSearch = () => {
   console.log('検索を実行')
   isOpenSearchMenu.value = true
+
+  nextTick(() => {
+    searchInputRef.value?.focus()
+  })
 }
 
 const handleHelpClick = () => {
@@ -79,14 +79,16 @@ const handleKeydown = (event: KeyboardEvent) => {
     return
   }
 
-  // キーボード操作の場合
-  const isMac = navigator.platform.toLowerCase().includes('mac')
-  const isCmdK = isMac && event.metaKey && event.key.toLowerCase() === 'k'
-  const isCtrlK = !isMac && event.ctrlKey && event.key.toLowerCase() === 'k'
+  const isCmdK = isMacOs() && event.metaKey && event.key.toLowerCase() === 'k'
+  const isCtrlK = !isMacOs() && event.ctrlKey && event.key.toLowerCase() === 'k'
 
   if (isCmdK || isCtrlK) {
     event.preventDefault()
     isOpenSearchMenu.value = true
+
+    nextTick(() => {
+      searchInputRef.value?.focus()
+    })
   }
 }
 

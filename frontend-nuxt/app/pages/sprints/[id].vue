@@ -23,14 +23,13 @@ const filterCount = ref(1)
 const { data: sections } = await useFetch<Section[]>(`/api/sprints/${sprintId}/tasks`)
 
 const tabs = [
-  { id: 'overview', label: '概要', icon: 'heroicons:clipboard-document-list' },
+  // { id: 'overview', label: '概要', icon: 'heroicons:clipboard-document-list' },
   { id: 'board', label: 'ボード', icon: 'heroicons:view-columns' },
   { id: 'list', label: 'リスト', icon: 'heroicons:list-bullet' },
-  { id: 'timeline', label: 'タイムライン', icon: 'heroicons:chart-bar' },
-  { id: 'dashboard', label: 'ダッシュボード', icon: 'heroicons:presentation-chart-line' },
-  { id: 'gantt', label: 'ガント', icon: 'heroicons:chart-bar-square' },
-  { id: 'workload', label: 'ワークロード', icon: 'heroicons:scale' },
-  { id: 'calendar', label: 'カレンダー', icon: 'heroicons:calendar' },
+  // { id: 'timeline', label: 'タイムライン', icon: 'heroicons:chart-bar' },
+  // { id: 'dashboard', label: 'ダッシュボード', icon: 'heroicons:presentation-chart-line' },
+  // { id: 'gantt', label: 'ガント', icon: 'heroicons:chart-bar-square' },
+  // { id: 'calendar', label: 'カレンダー', icon: 'heroicons:calendar' },
 ]
 
 const toggleSection = (sectionId: string) => {
@@ -59,14 +58,6 @@ const addTask = (sectionId?: string) => {
 
 const handleAddTask = () => {
   console.log('タスクを追加')
-}
-
-const handleAddApprovalRequest = () => {
-  console.log('承認リクエストを追加')
-}
-
-const handleAddMilestone = () => {
-  console.log('マイルストーンを追加')
 }
 
 const handleAddSection = () => {
@@ -159,10 +150,9 @@ const handleAddSection = () => {
           <TaskAddDropdown
             :dark-mode="true"
             @add-task="handleAddTask"
-            @add-approval-request="handleAddApprovalRequest"
-            @add-milestone="handleAddMilestone"
             @add-section="handleAddSection"
           />
+          <!-- @add-approval-request="handleAddApprovalRequest" -->
         </div>
 
         <div class="flex items-center gap-3">
@@ -209,7 +199,7 @@ const handleAddSection = () => {
     </div>
 
     <ListView
-      v-if="activeTab === 'list'"
+      v-if="activeTab === 'list' && sections"
       :sections="sections"
       @toggle-section="toggleSection"
       @toggle-task="toggleTask"
@@ -217,11 +207,16 @@ const handleAddSection = () => {
     />
 
     <BoardView
-      v-else-if="activeTab === 'board'"
+      v-else-if="activeTab === 'board' && sections"
       :sections="sections"
       @toggle-section="toggleSection"
       @toggle-task="toggleTask"
       @add-task="addTask"
     />
+
+    <!-- ローディング状態 -->
+    <div v-else-if="!sections" class="flex items-center justify-center py-12">
+      <div class="text-gray-400">読み込み中...</div>
+    </div>
   </div>
 </template>

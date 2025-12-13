@@ -1,28 +1,31 @@
 export default defineNuxtRouteMiddleware((to) => {
-  const { isAuthenticated, initialize } = useAuth()
-
-  // クライアントサイドでのみ初期化（localStorageアクセス）
-  if (import.meta.client) {
-    initialize()
+  // サーバーサイドでは認証チェックをスキップ
+  if (import.meta.server) {
+    return
   }
 
-  // ログイン前専用ページ（authレイアウトを使用するページ）
-  const guestOnlyPages = ['/login', '/register']
+  const { isAuthenticated } = useAuth()
 
-  // ログイン必須ではないページ（ランディングページなど）
-  // 現在は空配列（将来LPを追加する場合はここに追加）
-  const publicPages: string[] = []
+  // 認証不要のパブリックページ（パスベース）
+  const publicPages = ['/login', '/register']
+  const isPublicPageByPath = publicPages.includes(to.path)
 
-  const isGuestOnlyPage = guestOnlyPages.includes(to.path)
-  const isPublicPage = publicPages.includes(to.path)
+  // メタデータベースでのパブリックページ判定
+  const isPublicPageByMeta = to.meta.auth === false
 
-  // 認証済みユーザーがログイン前専用ページにアクセスした場合
-  if (isAuthenticated.value && isGuestOnlyPage) {
-    return navigateTo('/dashboard')
+  const isPublicPage = isPublicPageByPath || isPublicPageByMeta
+
+  // パブリックページの場合
+  if (isPublicPage) {
+    // 認証済みユーザーがログインページにアクセスした場合はダッシュボードにリダイレクト
+    if (isAuthenticated.value && (to.path === '/login' || to.path === '/register')) {
+      return navigateTo('/dashboard')
+    }
+    return // パブリックページはそのまま通す
   }
 
-  // 未認証ユーザーがログイン必須ページにアクセスした場合
-  if (!isAuthenticated.value && !isGuestOnlyPage && !isPublicPage) {
+  // プライベートページ（認証が必要）
+  if (!isAuthenticated.value) {
     return navigateTo('/login')
   }
 })

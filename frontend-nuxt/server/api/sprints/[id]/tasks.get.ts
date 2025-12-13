@@ -5,20 +5,20 @@ export default defineEventHandler(async (event) => {
 
   if (useMock) {
     const mockSections = [
-      {
-        id: 'section1',
-        name: '1006-101: 承認リクエスト',
-        expanded: true,
-        tasks: [
-          {
-            id: 'task1',
-            name: 'mindmap',
-            completed: false,
-            dueDate: '10月 11日',
-            hasSubtasks: false,
-          },
-        ],
-      },
+      // {
+      //   id: 'section1',
+      //   name: '1006-101: 承認リクエスト',
+      //   expanded: true,
+      //   tasks: [
+      //     {
+      //       id: 'task1',
+      //       name: 'mindmap',
+      //       completed: false,
+      //       dueDate: '10月 11日',
+      //       hasSubtasks: false,
+      //     },
+      //   ],
+      // },
       {
         id: 'section2',
         name: 'バックログ',

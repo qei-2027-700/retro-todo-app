@@ -27,13 +27,11 @@ const emit = defineEmits<{
 
 const activeTab = ref('all')
 
-// タブ定義
 const tabs: SearchTab[] = [
   { id: 'all', label: 'すべて', icon: 'heroicons:magnifying-glass' },
   { id: 'task', label: 'タスク', icon: 'heroicons:check' },
   { id: 'project', label: 'スプリント', icon: 'heroicons:clipboard-document-list' },
-  { id: 'member', label: 'メンバー', icon: 'heroicons:user' },
-  { id: 'message', label: 'メッセージ', icon: 'heroicons:chat-bubble-left-right' },
+  // { id: 'member', label: 'メンバー', icon: 'heroicons:user' },
 ]
 
 // APIから検索結果を取得
@@ -65,7 +63,7 @@ const handleResultClick = (item: SearchResultItem) => {
       v-if="modelValue"
       class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
       @click="closeModal"
-    />
+    ></div>
   </Transition>
 
   <!-- モーダルコンテンツ -->
@@ -115,7 +113,7 @@ const handleResultClick = (item: SearchResultItem) => {
           </div>
         </div>
 
-        <div
+        <!-- <div
           class="max-h-[60vh] overflow-y-auto"
           :class="[darkMode ? 'bg-gray-800' : 'bg-white']"
         >
@@ -181,7 +179,7 @@ const handleResultClick = (item: SearchResultItem) => {
             </div>
           </div>
 
-          <!-- <div class="px-6 py-4 border-t" :class="[darkMode ? 'border-gray-700' : 'border-gray-200']">
+          <div class="px-6 py-4 border-t" :class="[darkMode ? 'border-gray-700' : 'border-gray-200']">
             <h3
               class="text-xs font-semibold uppercase tracking-wider mb-3"
               :class="[darkMode ? 'text-gray-500' : 'text-gray-500']"
@@ -227,8 +225,8 @@ const handleResultClick = (item: SearchResultItem) => {
                 </svg>
               </button>
             </div>
-          </div> -->
-        </div>
+          </div>
+        </div> -->
       </div>
     </div>
   </Transition>

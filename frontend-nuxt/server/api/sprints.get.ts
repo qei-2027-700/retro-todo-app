@@ -4,10 +4,9 @@ export default defineEventHandler(async (event) => {
 
   if (useMock) {
     const mockSprints = [
-      { id: 2, name: 'バックログ', color: 'bg-blue-500', is_favorite: false },
-      { id: 1, name: '2510-3', color: 'bg-purple-500', is_favorite: false },
-      { id: 3, name: '2510-4', color: 'bg-purple-500', is_favorite: false },
-      { id: 4, name: 'Personal Sprint', color: 'bg-purple-500', is_favorite: true },
+      { id: 2, name: 'バックログ', color: 'bg-blue-500' },
+      { id: 3, name: '2510-4', color: 'bg-purple-500' },
+      { id: 4, name: 'Personal Sprint', color: 'bg-purple-500' },
     ]
 
     return mockSprints

@@ -27,7 +27,6 @@ CREATE INDEX IF NOT EXISTS idx_todos_sprint_id ON todos(sprint_id);
 -- サンプルデータ
 INSERT INTO sprints (name, color, is_favorite) VALUES
 ('バックログ', 'bg-blue-500', false),
-('2510-3', 'bg-purple-500', false),
 ('2510-4', 'bg-purple-500', false),
 ('Personal Sprint', 'bg-purple-500', true)
 ON CONFLICT DO NOTHING;

@@ -20,19 +20,7 @@ const menuItems = [
     badge: 'デフォルト',
     action: () => emit('addTask'),
   },
-  {
-    id: 'approval',
-    label: '承認リクエスト',
-    icon: 'heroicons:trophy',
-    action: () => emit('addApprovalRequest'),
-  },
-  {
-    id: 'milestone',
-    label: 'マイルストーン',
-    icon: 'heroicons:flag',
-    action: () => emit('addMilestone'),
-  },
-  {
+    {
     id: 'section',
     label: 'セクション',
     icon: 'heroicons:list-bullet',
@@ -56,10 +44,8 @@ const menuItems = [
         <Icon name="heroicons:plus" class="w-4 h-4" />
         <span>タスクを追加</span>
         <svg
+          class="w-4 h-4 transition-transform"
           :class="[
-            'w-4',
-            'h-4',
-            'transition-transform',
             isOpen ? 'rotate-180' : '',
           ]"
           fill="none"

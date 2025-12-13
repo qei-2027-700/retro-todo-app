@@ -35,13 +35,14 @@ func TestSprintRepository_Create(t *testing.T) {
 
 	repo := NewSprintRepository(db)
 
-	sprint, err := repo.Create("Test Sprint")
+	sprint, err := repo.Create("Test Sprint", "bg-purple-500", false)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, sprint)
 	assert.Greater(t, sprint.ID, 0)
-	assert.Equal(t, "Test Sprint", sprint.Title)
-	assert.False(t, sprint.Completed)
+	assert.Equal(t, "Test Sprint", sprint.Name)
+	assert.Equal(t, "bg-purple-500", sprint.Color)
+	assert.False(t, sprint.IsFavorite)
 }
 
 func TestSprintRepository_FindAll(t *testing.T) {
@@ -51,9 +52,9 @@ func TestSprintRepository_FindAll(t *testing.T) {
 	repo := NewSprintRepository(db)
 
 	// テスト用のスプリントを作成
-	_, err := repo.Create("Sprint 1")
+	_, err := repo.Create("Sprint 1", "bg-purple-500", false)
 	require.NoError(t, err)
-	_, err = repo.Create("Sprint 2")
+	_, err = repo.Create("Sprint 2", "bg-blue-500", true)
 	require.NoError(t, err)
 
 	sprints, err := repo.FindAll()
@@ -69,11 +70,11 @@ func TestSprintRepository_Update(t *testing.T) {
 	repo := NewSprintRepository(db)
 
 	// テスト用のスプリントを作成
-	sprint, err := repo.Create("Original Sprint")
+	sprint, err := repo.Create("Original Sprint", "bg-purple-500", false)
 	require.NoError(t, err)
 
 	// 更新
-	rowsAffected, message, err := repo.Update(sprint.ID, "Updated Sprint", true)
+	rowsAffected, message, err := repo.Update(sprint.ID, "Updated Sprint", "bg-green-500")
 
 	assert.NoError(t, err)
 	assert.Equal(t, 1, rowsAffected)
@@ -87,7 +88,7 @@ func TestSprintRepository_Update_NotFound(t *testing.T) {
 	repo := NewSprintRepository(db)
 
 	// 存在しないIDで更新
-	rowsAffected, _, err := repo.Update(99999, "Updated Sprint", true)
+	rowsAffected, _, err := repo.Update(99999, "Updated Sprint", "bg-blue-500")
 
 	assert.NoError(t, err)
 	assert.Equal(t, 0, rowsAffected)
@@ -100,7 +101,7 @@ func TestSprintRepository_Delete(t *testing.T) {
 	repo := NewSprintRepository(db)
 
 	// テスト用のスプリントを作成
-	sprint, err := repo.Create("To Be Deleted")
+	sprint, err := repo.Create("To Be Deleted", "bg-red-500", false)
 	require.NoError(t, err)
 
 	// 削除
@@ -115,31 +116,31 @@ func TestSprintRepository_Delete(t *testing.T) {
 	assert.True(t, isDeleted)
 }
 
-func TestSprintRepository_Search_ByTitle(t *testing.T) {
+func TestSprintRepository_Search_ByName(t *testing.T) {
 	db := setupSprintTestDB(t)
 	defer db.Close()
 
 	repo := NewSprintRepository(db)
 
 	// テスト用のスプリントを作成
-	_, err := repo.Create("Search Test Sprint")
+	_, err := repo.Create("Search Test Sprint", "bg-purple-500", false)
 	require.NoError(t, err)
-	_, err = repo.Create("Another Sprint")
+	_, err = repo.Create("Another Sprint", "bg-blue-500", false)
 	require.NoError(t, err)
 
-	// タイトルで検索
-	title := "Search"
+	// 名前で検索
+	name := "Search"
 	req := &model.SprintSearchRequest{
-		Title: &title,
+		Name: &name,
 	}
 	sprints, err := repo.Search(req)
 
 	assert.NoError(t, err)
 	assert.GreaterOrEqual(t, len(sprints), 1)
-	// 少なくとも1つは"Search"を含むタイトルがあるはず
+	// 少なくとも1つは"Search"を含む名前があるはず
 	found := false
 	for _, sprint := range sprints {
-		if sprint.Title == "Search Test Sprint" {
+		if sprint.Name == "Search Test Sprint" {
 			found = true
 			break
 		}
@@ -147,36 +148,33 @@ func TestSprintRepository_Search_ByTitle(t *testing.T) {
 	assert.True(t, found)
 }
 
-func TestSprintRepository_Search_ByCompleted(t *testing.T) {
+func TestSprintRepository_Search_ByIsFavorite(t *testing.T) {
 	db := setupSprintTestDB(t)
 	defer db.Close()
 
 	repo := NewSprintRepository(db)
 
-	// テスト用のスプリントを作成
-	sprint, err := repo.Create("Completed Sprint")
+	// テスト用のスプリントを作成（お気に入り）
+	// sprint, err := repo.Create("Favorite Sprint", "bg-purple-500", true)
+	_, err := repo.Create("Favorite Sprint", "bg-purple-500", true)
 	require.NoError(t, err)
 
-	// 完了状態に更新
-	_, _, err = repo.Update(sprint.ID, "Completed Sprint", true)
+	// お気に入りではないスプリントも作成
+	_, err = repo.Create("Non-Favorite Sprint", "bg-blue-500", false)
 	require.NoError(t, err)
 
-	// 未完了のスプリントも作成
-	_, err = repo.Create("Incomplete Sprint")
-	require.NoError(t, err)
-
-	// 完了状態で検索
-	completed := true
+	// お気に入りで検索
+	isFavorite := true
 	req := &model.SprintSearchRequest{
-		Completed: &completed,
+		IsFavorite: &isFavorite,
 	}
 	sprints, err := repo.Search(req)
 
 	assert.NoError(t, err)
 	assert.GreaterOrEqual(t, len(sprints), 1)
-	// すべて完了状態のはず
+	// すべてお気に入りのはず
 	for _, sprint := range sprints {
-		assert.True(t, sprint.Completed)
+		assert.True(t, sprint.IsFavorite)
 	}
 }
 
@@ -187,26 +185,23 @@ func TestSprintRepository_Search_MultipleConditions(t *testing.T) {
 	repo := NewSprintRepository(db)
 
 	// テスト用のスプリントを作成
-	sprint, err := repo.Create("Multi Search Sprint")
-	require.NoError(t, err)
-
-	// 完了状態に更新
-	_, _, err = repo.Update(sprint.ID, "Multi Search Sprint", true)
+	// sprint, err := repo.Create("Multi Search Sprint", "bg-orange-500", true)
+	_, err := repo.Create("Multi Search Sprint", "bg-orange-500", true)
 	require.NoError(t, err)
 
 	// 複数条件で検索
-	title := "Multi"
-	completed := true
+	name := "Multi"
+	isFavorite := true
 	req := &model.SprintSearchRequest{
-		Title:     &title,
-		Completed: &completed,
+		Name:       &name,
+		IsFavorite: &isFavorite,
 	}
 	sprints, err := repo.Search(req)
 
 	assert.NoError(t, err)
 	assert.GreaterOrEqual(t, len(sprints), 1)
-	// 見つかったスプリントはすべて完了状態のはず
+	// 見つかったスプリントはすべてお気に入り状態のはず
 	for _, sprint := range sprints {
-		assert.True(t, sprint.Completed)
+		assert.True(t, sprint.IsFavorite)
 	}
 }

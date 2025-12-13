@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import type { Sprint } from '~/types/sprint'
+import { useWindowSize } from '@vueuse/core';
+// フロントエンド用のSprint型定義
+interface Sprint {
+  id: number
+  name: string
+  color: string
+  created_at?: string
+  updated_at?: string
+}
 
 interface Props {
   isOpen?: boolean
@@ -17,8 +25,10 @@ const emit = defineEmits<{
 
 const route = useRoute()
 
-const insightExpanded = ref(true)
-const favoriteExpanded = ref(true)
+// TailwindCSSのlgブレークポイント（1024px）に合わせた判定
+const { width } = useWindowSize()
+const isLargeScreen = computed(() => width.value >= 1024)
+
 const projectExpanded = ref(true)
 
 const { data: sprintsData } = await useFetch<Sprint[]>('/api/sprints')
@@ -29,28 +39,21 @@ const mainNavItems = computed(() => [
   { id: 'inbox', label: '通知', icon: 'heroicons:inbox', to: '/inbox', active: route.path === '/inbox' },
 ])
 
-const insightItems = computed(() => [
-  { id: 'report', label: 'レポート', icon: 'heroicons:chart-bar', to: '/report', active: route.path === '/report' },
-  { id: 'portfolio', label: 'ポートフォリオ', icon: 'heroicons:folder', to: '/portfolio', active: route.path === '/portfolio' },
-  { id: 'goal', label: 'ゴール', icon: 'heroicons:trophy', to: '/goal', active: route.path === '/goal' },
-])
+const sprintMenuItems = [
+  {
+    id: 'new-sprint',
+    label: '新しいスプリント',
+    icon: 'heroicons:clipboard-document-list',
+    action: () => console.log('新しいスプリントを作成'),
+  },
+  {
+    id: 'import-sprint',
+    label: 'スプリントをインポート',
+    icon: 'heroicons:arrow-down-tray',
+    action: () => console.log('スプリントをインポート'),
+  },
+]
 
-// お気に入りスプリント（is_favorite = true のもの）
-const favoriteItems = computed(() => {
-  if (!sprintsData.value) return []
-
-  return sprintsData.value
-    .filter(sprint => sprint.is_favorite)
-    .map(sprint => ({
-      id: sprint.id.toString(),
-      label: sprint.name,
-      color: sprint.color,
-      to: sprint.name === 'バックログ' ? '/sprints/backlog' : `/sprints/${sprint.id}`,
-      active: route.path === (sprint.name === 'バックログ' ? '/sprints/backlog' : `/sprints/${sprint.id}`),
-    }))
-})
-
-// すべてのスプリント
 const sprintItems = computed(() => {
   if (!sprintsData.value) return []
 
@@ -63,20 +66,12 @@ const sprintItems = computed(() => {
   }))
 })
 
-// const teamItems = [
-//   { id: 'it', label: 'IT', icon: '👥', to: '/teams/it', hasChildren: true },
-// ]
-
 const handleNavClick = (id: string) => {
   console.log('ナビゲーション:', id)
-}
-
-const handleAddInsight = () => {
-  console.log('インサイトを追加')
-}
-
-const handleAddProject = () => {
-  console.log('プロジェクトを追加')
+  // SPの場合（lgブレークポイント未満）、ナビゲーション移動時にドロワーを閉じる
+  if (!isLargeScreen.value) {
+    emit('close')
+  }
 }
 </script>
 
@@ -140,109 +135,6 @@ const handleAddProject = () => {
             </NuxtLink>
           </div>
 
-          <!-- インサイト -->
-          <div class="mb-6">
-            <div class="flex items-center justify-between px-3 py-2">
-              <button
-                @click="insightExpanded = !insightExpanded"
-                class="flex items-center gap-2 text-sm font-semibold"
-                :class="[
-                  darkMode ? 'text-gray-400' : 'text-gray-600',
-                ]"
-              >
-                <svg
-                  class="w-4 h-4 transition-transform"
-                  :class="[
-                    insightExpanded ? 'rotate-90' : '',
-                  ]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-                <span>インサイト</span>
-              </button>
-              <button
-                @click="handleAddInsight"
-                class="p-1 rounded transition-colors"
-                :class="[
-                  darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-200',
-                ]"
-              >
-                <span :class="['text-lg', darkMode ? 'text-gray-400' : 'text-gray-600']">+</span>
-              </button>
-            </div>
-            <div v-if="insightExpanded" class="space-y-1 mt-1">
-              <NuxtLink
-                v-for="item in insightItems"
-                :key="item.id"
-                :to="item.to"
-                @click="handleNavClick(item.id)"
-                class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors"
-                :class="[
-                  darkMode
-                    ? ['text-gray-300', 'hover:bg-gray-800']
-                    : ['text-gray-700', 'hover:bg-gray-100'],
-                ]"
-              >
-                <Icon :name="item.icon" class="w-5 h-5" />
-                <span>{{ item.label }}</span>
-              </NuxtLink>
-            </div>
-          </div>
-
-          <!-- お気に入り -->
-          <div class="mb-6">
-            <button
-              @click="favoriteExpanded = !favoriteExpanded"
-              class="flex items-center gap-2 px-3 py-2 text-sm font-semibold"
-              :class="[
-                darkMode ? 'text-gray-400' : 'text-gray-600',
-              ]"
-            >
-              <svg
-                class="w-4 n-4 transition-transform"
-                :class="[
-                  favoriteExpanded ? 'rotate-90' : '',
-                ]"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-              <span>お気に入り</span>
-            </button>
-            <div v-if="favoriteExpanded" class="space-y-1 mt-1">
-              <NuxtLink
-                v-for="item in favoriteItems"
-                :key="item.id"
-                :to="item.to"
-                @click="handleNavClick(item.id)"
-                class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors"
-                :class="[
-                  darkMode
-                    ? ['text-gray-300', 'hover:bg-gray-800']
-                    : ['text-gray-700', 'hover:bg-gray-100'],
-                ]"
-              >
-                <div :class="['w-3', 'h-3', 'rounded', item.color]" />
-                <span>{{ item.label }}</span>
-              </NuxtLink>
-            </div>
-          </div>
-
           <!-- スプリント -->
           <div class="mb-6">
             <div class="flex items-center justify-between px-3 py-2">
@@ -271,15 +163,25 @@ const handleAddProject = () => {
                 </svg>
                 <span>スプリント</span>
               </button>
-              <button
-                @click="handleAddProject"
-                class="p-1 rounded transition-colors"
+              <SimpleDropdown
+                :items="sprintMenuItems"
+                :dark-mode="darkMode"
+              />
+            </div>
+            <div>
+              <NuxtLink
+                :to="'/sprints'"
+                @click="handleNavClick('sprints')"
+                class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors"
                 :class="[
-                  darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-200',
+                  darkMode
+                    ? ['text-gray-300', 'hover:bg-gray-800']
+                    : ['text-gray-700', 'hover:bg-gray-100'],
                 ]"
               >
-                <span :class="['text-lg', darkMode ? 'text-gray-400' : 'text-gray-600']">+</span>
-              </button>
+                <div :class="['w-3', 'h-3', 'rounded', 'bg-gray-500']" />
+                <span>sprint一覧</span>
+              </NuxtLink>
             </div>
             <div v-if="projectExpanded" class="space-y-1 mt-1">
               <NuxtLink
@@ -303,6 +205,7 @@ const handleAddProject = () => {
           <div class="mb-6">
             <NuxtLink
               to="/sample"
+              @click="handleNavClick('sample')"
               class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors"
               :class="[
                 darkMode
