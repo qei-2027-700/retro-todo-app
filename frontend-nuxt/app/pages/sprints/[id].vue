@@ -1,153 +1,57 @@
 <script setup lang="ts">
+// ルートパラメータからIDを抽出（例: "1-2025-12-week1" → 1）
+const route = useRoute()
+const sprintId = extractIdFromParam(route.params.id)
+
+// TODO: API から sprint データを取得
+// const { fetchSprint } = useSprints()
+// const sprint = await fetchSprint(sprintId)
+
+// 仮のデータ（後でAPI呼び出しに置き換え）
+const sprint = ref({
+  id: sprintId,
+  title: 'Personal Sprint',
+  completed: false,
+})
+
 const activeTab = ref('list')
 const filterCount = ref(1)
-const sortCount = ref(1)
-const groupCount = ref(1)
 
 const sections = ref([
   {
     id: 'section1',
-    name: '2510-4 - IT',
-    count: 1,
+    name: '1006-101: 承認リクエスト',
     expanded: true,
     tasks: [
-      {
-        id: 'task1',
-        name: '健康保険ハガキ連絡',
-        completed: false,
-        dueDate: '',
-        collaborators: [],
-        project: '2510-4',
-        projectColor: 'bg-purple-500',
-        tags: ['IT'],
-      },
+      { id: 'task1', name: 'mindmap', completed: false, dueDate: '10月 11日', hasSubtasks: false },
     ],
   },
   {
     id: 'section2',
-    name: 'Personal Sprint - IT',
-    count: 3,
+    name: 'バックログ',
     expanded: true,
     tasks: [
-      {
-        id: 'task2',
-        name: '部屋の片付け',
-        completed: false,
-        dueDate: '',
-        collaborators: ['コラボレータ...'],
-        project: 'Personal Sprint',
-        projectColor: 'bg-purple-500',
-        tags: ['バックログ', 'IT'],
-        hasSubtasks: true,
-        subtaskCount: 6,
-      },
-      {
-        id: 'task3',
-        name: '税関係の書類確認',
-        completed: false,
-        dueDate: '',
-        collaborators: [],
-        project: 'Personal Sprint',
-        projectColor: 'bg-purple-500',
-        tags: ['バックログ', 'IT'],
-      },
-      {
-        id: 'task4',
-        name: 'r-ホワイトニング',
-        completed: false,
-        dueDate: '',
-        collaborators: [],
-        project: 'Personal Sprint',
-        projectColor: 'bg-purple-500',
-        tags: ['バックログ', 'IT'],
-      },
-    ],
-  },
-  {
-    id: 'section3',
-    name: 'バックログ - IT',
-    count: 5,
-    expanded: true,
-    tasks: [
-      {
-        id: 'task5',
-        name: '部屋の片付け',
-        completed: false,
-        dueDate: '',
-        collaborators: [],
-        project: 'バックログ',
-        projectColor: 'bg-blue-500',
-        tags: ['IT'],
-        hasSubtasks: true,
-        subtaskCount: 2,
-      },
-      {
-        id: 'task6',
-        name: 'r-部屋作り',
-        completed: false,
-        dueDate: '',
-        collaborators: [],
-        project: 'バックログ',
-        projectColor: 'bg-blue-500',
-        tags: ['IT'],
-      },
-      {
-        id: 'task7',
-        name: '税関係の書類確認',
-        completed: false,
-        dueDate: '',
-        collaborators: [],
-        project: 'Personal Sprint',
-        projectColor: 'bg-purple-500',
-        tags: ['バックログ', 'IT'],
-      },
-      {
-        id: 'task8',
-        name: 'r-ホワイトニング',
-        completed: false,
-        dueDate: '',
-        collaborators: [],
-        project: 'Personal Sprint',
-        projectColor: 'bg-purple-500',
-        tags: ['バックログ', 'IT'],
-      },
-      {
-        id: 'task9',
-        name: '靴を洗う',
-        completed: false,
-        dueDate: '',
-        collaborators: [],
-        project: 'バックログ',
-        projectColor: 'bg-blue-500',
-        tags: [],
-      },
-    ],
-  },
-  {
-    id: 'section4',
-    name: 'プロジェクトなし',
-    count: 0,
-    expanded: true,
-    tasks: [
-      {
-        id: 'task10',
-        name: 'PayPay発券',
-        completed: false,
-        dueDate: '4月 5日',
-        collaborators: [],
-        project: '',
-        projectColor: '',
-        tags: ['自分だけ'],
-      },
+      { id: 'task2', name: 'r-ホワイトニング', completed: false, dueDate: '', hasSubtasks: false },
+      { id: 'task3', name: 'ヘアアイロン検討', completed: false, dueDate: '10月 5日', hasSubtasks: false },
+      { id: 'task4', name: 'エアコンマニュアル', completed: false, dueDate: '', hasSubtasks: false },
+      { id: 'task5', name: '部屋の片付け', completed: false, dueDate: '', hasSubtasks: true, subtaskCount: 3 },
+      { id: 'task6', name: '冷凍庫の中身を消費する：餃子・ブロッコリー', completed: false, dueDate: '', hasSubtasks: false },
+      { id: 'task7', name: 'mcp: claudecodeとgithubなどを連携する', completed: false, dueDate: '', hasSubtasks: false },
+      { id: 'task8', name: 'ポモドーロタイマーをデバイスで買う', completed: false, dueDate: '', hasSubtasks: false },
+      { id: 'task9', name: '自炊計画', completed: false, dueDate: '', hasSubtasks: true, subtaskCount: 3 },
     ],
   },
 ])
 
 const tabs = [
-  { id: 'list', label: 'リスト', icon: 'heroicons:list-bullet' },
+  { id: 'overview', label: '概要', icon: 'heroicons:clipboard-document-list' },
   { id: 'board', label: 'ボード', icon: 'heroicons:view-columns' },
+  { id: 'list', label: 'リスト', icon: 'heroicons:list-bullet' },
+  { id: 'timeline', label: 'タイムライン', icon: 'heroicons:chart-bar' },
+  { id: 'dashboard', label: 'ダッシュボード', icon: 'heroicons:presentation-chart-line' },
+  { id: 'gantt', label: 'ガント', icon: 'heroicons:chart-bar-square' },
+  { id: 'workload', label: 'ワークロード', icon: 'heroicons:scale' },
   { id: 'calendar', label: 'カレンダー', icon: 'heroicons:calendar' },
-  // { id: 'files', label: 'ファイル', icon: 'heroicons:paper-clip' },
 ]
 
 const toggleSection = (sectionId: string) => {
@@ -194,27 +98,38 @@ const handleAddSection = () => {
       <div class="px-8 py-4">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-3">
-            <!-- アバター -->
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600">
-              <img
-                src="https://i.pravatar.cc/150?img=3"
-                alt="User"
-                class="w-full h-full rounded-full object-cover"
-              />
+            <!-- プロジェクトアイコン -->
+            <div class="w-10 h-10 bg-purple-500 rounded flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </div>
 
-            <!-- タイトル -->
-            <h1 class="text-2xl font-semibold text-white">マイタスク</h1>
+            <!-- プロジェクト名 -->
+            <h1 class="text-2xl font-semibold text-white">{{ sprint.title }}</h1>
 
-            <!-- ドロップダウン -->
-            <button class="text-gray-400 hover:text-white transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            <!-- お気に入り -->
+            <button class="text-yellow-400 hover:text-yellow-300 transition-colors">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
               </svg>
+            </button>
+
+            <!-- ステータス設定 -->
+            <button class="flex items-center gap-2 px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm text-gray-300 transition-colors">
+              <span class="w-2 h-2 bg-gray-500 rounded-full"></span>
+              <span>ステータスを設定</span>
             </button>
           </div>
 
           <div class="flex items-center gap-2">
+            <!-- メンバー -->
+            <div class="flex -space-x-2">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 border-2 border-gray-800">
+                <img src="https://i.pravatar.cc/150?img=3" alt="User" class="w-full h-full rounded-full object-cover" />
+              </div>
+            </div>
+
             <!-- 共有ボタン -->
             <button class="p-2 hover:bg-gray-700 rounded transition-colors">
               <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,25 +192,19 @@ const handleAddSection = () => {
           </button>
 
           <!-- ソート -->
-          <button class="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm text-white transition-colors">
+          <button class="flex items-center gap-2 px-3 py-2 hover:bg-gray-700 rounded text-sm text-gray-300 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
             </svg>
-            <span>ソート: {{ sortCount }}</span>
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <span>ソート</span>
           </button>
 
           <!-- グループ -->
-          <button class="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm text-white transition-colors">
+          <button class="flex items-center gap-2 px-3 py-2 hover:bg-gray-700 rounded text-sm text-gray-300 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-            <span>グループ: {{ groupCount }}</span>
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <span>グループ</span>
           </button>
 
           <!-- オプション -->
@@ -319,13 +228,10 @@ const handleAddSection = () => {
     <!-- タスクリスト -->
     <div class="bg-gray-900">
       <!-- テーブルヘッダー -->
-      <div class="grid grid-cols-[1fr,150px,150px,180px,150px,50px] border-b border-gray-700 px-8 py-3 bg-gray-800 sticky top-14">
+      <div class="grid grid-cols-[1fr,200px,50px] border-b border-gray-700 px-8 py-3 bg-gray-800 sticky top-14">
         <div class="text-sm font-medium text-gray-400">名前</div>
-        <div class="text-sm font-medium text-gray-400">期日 ↓</div>
-        <div class="text-sm font-medium text-gray-400">コラボレー...</div>
-        <div class="text-sm font-medium text-gray-400">スプリント</div>
-        <div class="text-sm font-medium text-gray-400">タスク公開...</div>
-        <div class="text-sm font-medium text-gray-400">+</div>
+        <div class="text-sm font-medium text-gray-400">期日</div>
+        <div></div>
       </div>
 
       <!-- セクションリスト -->
@@ -342,7 +248,7 @@ const handleAddSection = () => {
               >
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
-              <span class="text-sm font-semibold text-white">{{ section.name }} ({{ section.count }})</span>
+              <span class="text-sm font-semibold text-white">{{ section.name }}</span>
             </div>
           </div>
 
@@ -351,10 +257,17 @@ const handleAddSection = () => {
             <div
               v-for="task in section.tasks"
               :key="task.id"
-              class="grid grid-cols-[1fr,150px,150px,180px,150px,50px] px-8 py-3 hover:bg-gray-800 transition-colors group border-b border-gray-800/50"
+              class="grid grid-cols-[1fr,200px,50px] px-8 py-3 hover:bg-gray-800 transition-colors group border-b border-gray-800/50"
             >
               <!-- タスク名 -->
               <div class="flex items-center gap-3">
+                <!-- 折りたたみアイコン（サブタスクがある場合） -->
+                <button v-if="task.hasSubtasks" class="text-gray-500 hover:text-gray-300">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+
                 <!-- チェックボックス -->
                 <button
                   @click="toggleTask(task.id)"
@@ -385,29 +298,14 @@ const handleAddSection = () => {
                 <span :class="['text-sm text-gray-300', task.completed ? 'line-through opacity-50' : '']">
                   {{ task.name }}
                 </span>
+
+                <!-- サブタスクカウント -->
+                <span v-if="task.hasSubtasks" class="text-xs text-gray-500">{{ task.subtaskCount }} 🔗</span>
               </div>
 
               <!-- 期日 -->
               <div class="flex items-center">
                 <span v-if="task.dueDate" class="text-sm text-orange-400">{{ task.dueDate }}</span>
-              </div>
-
-              <!-- コラボレーター -->
-              <div class="flex items-center">
-                <span v-if="task.collaborators.length" class="text-sm text-gray-400">{{ task.collaborators[0] }}</span>
-              </div>
-
-              <!-- スプリント -->
-              <div class="flex items-center gap-2">
-                <div v-if="task.project" :class="['w-3 h-3 rounded', task.projectColor]" />
-                <span class="text-sm text-gray-300">{{ task.project }}</span>
-              </div>
-
-              <!-- タグ -->
-              <div class="flex items-center gap-2">
-                <span v-for="tag in task.tags.slice(0, 1)" :key="tag" class="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded">
-                  {{ tag }}
-                </span>
               </div>
 
               <!-- アクション -->

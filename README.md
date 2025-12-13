@@ -54,7 +54,7 @@ Backend の Swagger ドキュメントから Frontend の TypeScript 型定義�
 
 ### 生成手順（推奨: Taskコマンド）
 
-プロジェクトルートから以下のコマンドを実行:
+スプリントルートから以下のコマンドを実行:
 
 ```bash
 # Backend の Swagger ドキュメントを生成
@@ -114,7 +114,7 @@ const todo: Todo = {
 
 ## Taskコマンド一覧
 
-プロジェクトルートで利用可能なTaskコマンド:
+スプリントルートで利用可能なTaskコマンド:
 
 ### Backend関連
 - `task be:dev` - 開発サーバーを起動（ホットリロード）

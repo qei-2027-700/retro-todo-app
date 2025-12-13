@@ -113,7 +113,7 @@ defineExpose({
           >
             <div class="flex items-center gap-3 flex-1">
               <!-- アイコン -->
-              <span v-if="item.icon" class="text-lg">{{ item.icon }}</span>
+              <Icon v-if="item.icon" :name="item.icon" class="w-5 h-5" />
               <!-- ラベル -->
               <span>{{ item.label }}</span>
               <!-- バッジ -->

@@ -4,45 +4,47 @@ interface Props {
   darkMode?: boolean
 }
 
-const { 
-  isOpen = true, 
-  darkMode = true 
+const {
+  isOpen = true,
+  darkMode = true
 } = defineProps<Props>()
 
 const emit = defineEmits<{
   close: []
 }>()
 
+const route = useRoute()
+
 const insightExpanded = ref(true)
 const favoriteExpanded = ref(true)
 const projectExpanded = ref(true)
 
-const mainNavItems = [
-  { id: 'home', label: 'ホーム', icon: '🏠', to: '/', active: false },
-  { id: 'tasks', label: 'マイタスク', icon: '✓', to: '/tasks', active: true },
-  { id: 'inbox', label: '受信トレイ', icon: '🔔', to: '/inbox', active: false },
-]
+const mainNavItems = computed(() => [
+  { id: 'home', label: 'ホーム', icon: 'heroicons:home', to: '/', active: route.path === '/' },
+  { id: 'tasks', label: 'マイタスク', icon: 'heroicons:check', to: '/tasks', active: route.path === '/tasks' },
+  { id: 'inbox', label: '受信トレイ', icon: 'heroicons:inbox', to: '/inbox', active: route.path === '/inbox' },
+])
 
-const insightItems = [
-  { id: 'report', label: 'レポート', icon: '📊', to: '/report', active: false },
-  { id: 'portfolio', label: 'ポートフォリオ', icon: '📁', to: '/portfolio', active: false },
-  { id: 'goal', label: 'ゴール', icon: '🎯', to: '/goal', active: false },
-]
+const insightItems = computed(() => [
+  { id: 'report', label: 'レポート', icon: 'heroicons:chart-bar', to: '/report', active: route.path === '/report' },
+  { id: 'portfolio', label: 'ポートフォリオ', icon: 'heroicons:folder', to: '/portfolio', active: route.path === '/portfolio' },
+  { id: 'goal', label: 'ゴール', icon: 'heroicons:trophy', to: '/goal', active: route.path === '/goal' },
+])
 
-const favoriteItems = [
-  { id: 'personal-sprint', label: 'Personal Sprint', color: 'bg-purple-500', to: '/projects/personal-sprint', active: false },
-]
+const favoriteItems = computed(() => [
+  { id: 'personal-sprint', label: 'Personal Sprint', color: 'bg-purple-500', to: '/projects/personal-sprint', active: route.path === '/projects/personal-sprint' },
+])
 
-const projectItems = [
-  { id: 'personal-sprint-2', label: 'Personal Sprint', color: 'bg-purple-500', to: '/projects/personal-sprint', active: false },
-  { id: '2510-3', label: '2510-3', color: 'bg-purple-500', to: '/projects/2510-3', active: false },
-  { id: 'backlog', label: 'バックログ', color: 'bg-blue-500', to: '/projects/backlog', active: false },
-  { id: '2510-4', label: '2510-4', color: 'bg-purple-500', to: '/projects/2510-4', active: false },
-]
+const projectItems = computed(() => [
+  { id: 'backlog', label: 'バックログ', color: 'bg-blue-500', to: '/projects/backlog', active: route.path === '/projects/backlog' },
+  // { id: 'personal-sprint-2', label: 'Personal Sprint', color: 'bg-purple-500', to: '/projects/personal-sprint', active: route.path === '/projects/personal-sprint' },
+  // { id: '2510-3', label: '2510-3', color: 'bg-purple-500', to: '/projects/2510-3', active: route.path === '/projects/2510-3' },
+  // { id: '2510-4', label: '2510-4', color: 'bg-purple-500', to: '/projects/2510-4', active: route.path === '/projects/2510-4' },
+])
 
-const teamItems = [
-  { id: 'it', label: 'IT', icon: '👥', to: '/teams/it', hasChildren: true },
-]
+// const teamItems = [
+//   { id: 'it', label: 'IT', icon: '👥', to: '/teams/it', hasChildren: true },
+// ]
 
 const handleNavClick = (id: string) => {
   console.log('ナビゲーション:', id)
@@ -112,7 +114,7 @@ const handleAddProject = () => {
                     : ['text-gray-700', 'hover:bg-gray-100'],
               ]"
             >
-              <span class="text-lg">{{ item.icon }}</span>
+              <Icon :name="item.icon" class="w-5 h-5" />
               <span>{{ item.label }}</span>
             </NuxtLink>
           </div>
@@ -168,7 +170,7 @@ const handleAddProject = () => {
                     : ['text-gray-700', 'hover:bg-gray-100'],
                 ]"
               >
-                <span class="text-lg">{{ item.icon }}</span>
+                <Icon :name="item.icon" class="w-5 h-5" />
                 <span>{{ item.label }}</span>
               </NuxtLink>
             </div>
@@ -220,7 +222,7 @@ const handleAddProject = () => {
             </div>
           </div>
 
-          <!-- プロジェクト -->
+          <!-- スプリント -->
           <div class="mb-6">
             <div class="flex items-center justify-between px-3 py-2">
               <button
@@ -246,7 +248,7 @@ const handleAddProject = () => {
                     d="M9 5l7 7-7 7"
                   />
                 </svg>
-                <span>プロジェクト</span>
+                <span>スプリント</span>
               </button>
               <button
                 @click="handleAddProject"

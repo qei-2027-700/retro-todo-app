@@ -21,19 +21,19 @@ const createMenuItems = [
   {
     id: 'task',
     label: 'タスク',
-    icon: '✓',
+    icon: 'heroicons:check',
     action: () => console.log('タスクを作成'),
   },
   {
     id: 'project',
-    label: 'プロジェクト',
-    icon: '📋',
+    label: 'スプリント',
+    icon: 'heroicons:clipboard-document-list',
     action: () => console.log('プロジェクトを作成'),
   },
   {
     id: 'message',
     label: 'メッセージ',
-    icon: '💬',
+    icon: 'heroicons:chat-bubble-left-right',
     action: () => console.log('メッセージを作成'),
   },
 ]
@@ -304,7 +304,7 @@ onUnmounted(() => {
                       : ['text-gray-700', 'hover:bg-gray-100'],
                   ]"
                 >
-                  <span class="text-lg">👤</span>
+                  <Icon name="heroicons:user" class="w-5 h-5" />
                   <span>プロフィール</span>
                 </button>
                 <button
@@ -316,7 +316,7 @@ onUnmounted(() => {
                       : ['text-gray-700', 'hover:bg-gray-100'],
                   ]"
                 >
-                  <span class="text-lg">⚙️</span>
+                  <Icon name="heroicons:cog-6-tooth" class="w-5 h-5" />
                   <span>設定</span>
                 </button>
                 <hr :class="['my-1', darkMode ? 'border-gray-700' : 'border-gray-200']" />
@@ -329,7 +329,7 @@ onUnmounted(() => {
                       : ['text-gray-700', 'hover:bg-gray-100'],
                   ]"
                 >
-                  <span class="text-lg">🚪</span>
+                  <Icon name="heroicons:arrow-right-on-rectangle" class="w-5 h-5" />
                   <span>ログアウト</span>
                 </button>
               </div>

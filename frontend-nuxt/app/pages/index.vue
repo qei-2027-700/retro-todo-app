@@ -30,7 +30,7 @@ const addTask = () => {
 }
 
 const addProject = () => {
-  console.log('プロジェクトを追加')
+  console.log('スプリントを追加')
 }
 </script>
 
@@ -135,27 +135,27 @@ const addProject = () => {
           </button>
         </div>
 
-        <!-- プロジェクトセクション -->
+        <!-- スプリントセクション -->
         <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
           <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-semibold text-white">プロジェクト</h2>
+            <h2 class="text-xl font-semibold text-white">スプリント</h2>
             <button class="text-sm text-gray-400 hover:text-white transition-colors">
               最近 ▼
             </button>
           </div>
 
-          <!-- プロジェクト追加ボタン -->
+          <!-- スプリント追加ボタン -->
           <button
             @click="addProject"
             class="w-full p-4 mb-4 border-2 border-dashed border-gray-700 rounded-lg hover:border-gray-600 transition-colors"
           >
             <div class="flex items-center justify-center gap-2 text-gray-400">
               <span class="text-2xl">+</span>
-              <span class="text-sm">プロジェクトを作成</span>
+              <span class="text-sm">スプリントを作成</span>
             </div>
           </button>
 
-          <!-- プロジェクトカード -->
+          <!-- スプリントカード -->
           <div class="space-y-3">
             <div
               v-for="project in projects"

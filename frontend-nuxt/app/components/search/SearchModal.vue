@@ -29,11 +29,11 @@ const activeTab = ref('all')
 
 // タブ定義
 const tabs: SearchTab[] = [
-  { id: 'all', label: 'すべて', icon: '🔍' },
-  { id: 'task', label: 'タスク', icon: '✓' },
-  { id: 'project', label: 'プロジェクト', icon: '📋' },
-  { id: 'member', label: 'メンバー', icon: '👤' },
-  { id: 'message', label: 'メッセージ', icon: '💬' },
+  { id: 'all', label: 'すべて', icon: 'heroicons:magnifying-glass' },
+  { id: 'task', label: 'タスク', icon: 'heroicons:check' },
+  { id: 'project', label: 'スプリント', icon: 'heroicons:clipboard-document-list' },
+  { id: 'member', label: 'メンバー', icon: 'heroicons:user' },
+  { id: 'message', label: 'メッセージ', icon: 'heroicons:chat-bubble-left-right' },
 ]
 
 // サンプル検索結果
@@ -42,7 +42,7 @@ const recentResults: SearchResultItem[] = [
     id: '1',
     title: '部屋の片付け',
     subtitle: 'Personal Sprint',
-    icon: '✓',
+    icon: 'heroicons:check',
     type: 'task',
     completed: true,
   },
@@ -50,7 +50,7 @@ const recentResults: SearchResultItem[] = [
     id: '2',
     title: '健康保険ハガキ連絡',
     subtitle: '2510-4',
-    icon: '✓',
+    icon: 'heroicons:check',
     type: 'task',
     completed: true,
   },
@@ -58,7 +58,7 @@ const recentResults: SearchResultItem[] = [
     id: '3',
     title: 'エアコンマニュアル',
     subtitle: 'Personal Sprint',
-    icon: '✓',
+    icon: 'heroicons:check',
     type: 'task',
     completed: true,
   },
@@ -68,19 +68,19 @@ const savedSearches: SearchResultItem[] = [
   {
     id: 's1',
     title: '自分が作成したタスク',
-    icon: '⭐',
+    icon: 'heroicons:star',
     type: 'saved-search',
   },
   {
     id: 's2',
     title: '他のメンバーに割り当てたタスク',
-    icon: '⭐',
+    icon: 'heroicons:star',
     type: 'saved-search',
   },
   {
     id: 's3',
     title: '最近完了したタスク',
-    icon: '⭐',
+    icon: 'heroicons:star',
     type: 'saved-search',
   },
 ]
@@ -154,7 +154,7 @@ const handleResultClick = (item: SearchResultItem) => {
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
               ]"
             >
-              <span>{{ tab.icon }}</span>
+              <Icon :name="tab.icon" class="w-4 h-4" />
               <span>{{ tab.label }}</span>
             </button>
           </div>
@@ -256,7 +256,7 @@ const handleResultClick = (item: SearchResultItem) => {
                   class="flex-shrink-0 w-5 h-5 rounded flex items-center justify-center"
                   :class="[darkMode ? 'text-gray-400' : 'text-gray-500']"
                 >
-                  <span>{{ item.icon }}</span>
+                  <Icon :name="item.icon" class="w-4 h-4" />
                 </div>
 
                 <!-- タイトル -->

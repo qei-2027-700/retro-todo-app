@@ -12,7 +12,7 @@ interface Props {
 
 const {
   label = '作成',
-  icon = '➕',
+  icon = 'heroicons:plus',
   size = 'md',
   darkMode = true,
   disabled = false,
@@ -36,7 +36,7 @@ const handleClick = (event: MouseEvent) => {
     :disabled="disabled"
     @click="handleClick"
   >
-    <span class="text-lg">{{ icon }}</span>
+    <Icon :name="icon" class="w-5 h-5" />
     <span>{{ label }}</span>
   </BaseButton>
 </template>

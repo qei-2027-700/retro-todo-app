@@ -1,29 +1,26 @@
 <script setup lang="ts">
-const activeTab = ref('list')
-const filterCount = ref(1)
+// バックログは特別な固定プロジェクト
+const project = ref({
+  id: 'backlog',
+  title: 'バックログ',
+  type: 'permanent',
+  description: 'すべてのタスクが集まる場所',
+})
 
+const activeTab = ref('list')
+const filterCount = ref(0)
+
+// TODO: APIからバックログのタスクを取得
 const sections = ref([
   {
     id: 'section1',
-    name: '1006-101: 承認リクエスト',
+    name: '未分類',
     expanded: true,
     tasks: [
-      { id: 'task1', name: 'mindmap', completed: false, dueDate: '10月 11日', hasSubtasks: false },
-    ],
-  },
-  {
-    id: 'section2',
-    name: 'バックログ',
-    expanded: true,
-    tasks: [
-      { id: 'task2', name: 'r-ホワイトニング', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task3', name: 'ヘアアイロン検討', completed: false, dueDate: '10月 5日', hasSubtasks: false },
-      { id: 'task4', name: 'エアコンマニュアル', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task5', name: '部屋の片付け', completed: false, dueDate: '', hasSubtasks: true, subtaskCount: 3 },
-      { id: 'task6', name: '冷凍庫の中身を消費する：餃子・ブロッコリー', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task7', name: 'mcp: claudecodeとgithubなどを連携する', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task8', name: 'ポモドーロタイマーをデバイスで買う', completed: false, dueDate: '', hasSubtasks: false },
-      { id: 'task9', name: '自炊計画', completed: false, dueDate: '', hasSubtasks: true, subtaskCount: 3 },
+      { id: 'task1', name: 'r-ホワイトニング', completed: false, dueDate: '', hasSubtasks: false },
+      { id: 'task2', name: 'ヘアアイロン検討', completed: false, dueDate: '10月 5日', hasSubtasks: false },
+      { id: 'task3', name: 'エアコンマニュアル', completed: false, dueDate: '', hasSubtasks: false },
+      { id: 'task4', name: '部屋の片付け', completed: false, dueDate: '', hasSubtasks: true, subtaskCount: 3 },
     ],
   },
 ])
@@ -33,9 +30,6 @@ const tabs = [
   { id: 'board', label: 'ボード', icon: 'heroicons:view-columns' },
   { id: 'list', label: 'リスト', icon: 'heroicons:list-bullet' },
   { id: 'timeline', label: 'タイムライン', icon: 'heroicons:chart-bar' },
-  { id: 'dashboard', label: 'ダッシュボード', icon: 'heroicons:presentation-chart-line' },
-  { id: 'gantt', label: 'ガント', icon: 'heroicons:chart-bar-square' },
-  { id: 'workload', label: 'ワークロード', icon: 'heroicons:scale' },
   { id: 'calendar', label: 'カレンダー', icon: 'heroicons:calendar' },
 ]
 
@@ -63,14 +57,6 @@ const handleAddTask = () => {
   console.log('タスクを追加')
 }
 
-const handleAddApprovalRequest = () => {
-  console.log('承認リクエストを追加')
-}
-
-const handleAddMilestone = () => {
-  console.log('マイルストーンを追加')
-}
-
 const handleAddSection = () => {
   console.log('セクションを追加')
 }
@@ -78,50 +64,26 @@ const handleAddSection = () => {
 
 <template>
   <div class="w-full">
-    <!-- スプリントヘッダー -->
+    <!-- プロジェクトヘッダー -->
     <div class="border-b border-gray-700 bg-gray-800">
       <div class="px-8 py-4">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-3">
-            <!-- スプリントアイコン -->
-            <div class="w-10 h-10 bg-purple-500 rounded flex items-center justify-center">
+            <!-- プロジェクトアイコン -->
+            <div class="w-10 h-10 bg-blue-500 rounded flex items-center justify-center">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
               </svg>
             </div>
 
-            <!-- スプリント名 -->
-            <h1 class="text-2xl font-semibold text-white">Personal Sprint</h1>
-
-            <!-- お気に入り -->
-            <button class="text-yellow-400 hover:text-yellow-300 transition-colors">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-              </svg>
-            </button>
-
-            <!-- ステータス設定 -->
-            <button class="flex items-center gap-2 px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm text-gray-300 transition-colors">
-              <span class="w-2 h-2 bg-gray-500 rounded-full"></span>
-              <span>ステータスを設定</span>
-            </button>
+            <!-- プロジェクト名 -->
+            <div>
+              <h1 class="text-2xl font-semibold text-white">{{ project.title }}</h1>
+              <p class="text-sm text-gray-400">{{ project.description }}</p>
+            </div>
           </div>
 
           <div class="flex items-center gap-2">
-            <!-- メンバー -->
-            <div class="flex -space-x-2">
-              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 border-2 border-gray-800">
-                <img src="https://i.pravatar.cc/150?img=3" alt="User" class="w-full h-full rounded-full object-cover" />
-              </div>
-            </div>
-
-            <!-- 共有ボタン -->
-            <button class="p-2 hover:bg-gray-700 rounded transition-colors">
-              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </button>
-
             <!-- カスタマイズボタン -->
             <button class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm text-gray-300 transition-colors">
               カスタマイズ
@@ -145,11 +107,6 @@ const handleAddSection = () => {
             <Icon :name="tab.icon" class="w-4 h-4" />
             <span>{{ tab.label }}</span>
           </button>
-          <button class="text-gray-400 hover:text-white transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
         </div>
       </div>
     </div>
@@ -158,18 +115,33 @@ const handleAddSection = () => {
     <div class="bg-gray-800 border-b border-gray-700 px-8 py-3">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <TaskAddDropdown
-            :dark-mode="true"
-            @add-task="handleAddTask"
-            @add-approval-request="handleAddApprovalRequest"
-            @add-milestone="handleAddMilestone"
-            @add-section="handleAddSection"
-          />
+          <button
+            @click="handleAddTask"
+            class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm text-white transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>タスクを追加</span>
+          </button>
+
+          <button
+            @click="handleAddSection"
+            class="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm text-gray-300 transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>セクションを追加</span>
+          </button>
         </div>
 
         <div class="flex items-center gap-3">
           <!-- フィルター -->
-          <button class="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm text-white transition-colors">
+          <button
+            v-if="filterCount > 0"
+            class="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm text-white transition-colors"
+          >
             <span>フィルター: {{ filterCount }}</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -182,22 +154,6 @@ const handleAddSection = () => {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
             </svg>
             <span>ソート</span>
-          </button>
-
-          <!-- グループ -->
-          <button class="flex items-center gap-2 px-3 py-2 hover:bg-gray-700 rounded text-sm text-gray-300 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            <span>グループ</span>
-          </button>
-
-          <!-- オプション -->
-          <button class="flex items-center gap-2 px-3 py-2 hover:bg-gray-700 rounded text-sm text-gray-300 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-            </svg>
-            <span>オプション</span>
           </button>
 
           <!-- 検索 -->
@@ -214,7 +170,7 @@ const handleAddSection = () => {
     <div class="bg-gray-900">
       <!-- テーブルヘッダー -->
       <div class="grid grid-cols-[1fr,200px,50px] border-b border-gray-700 px-8 py-3 bg-gray-800 sticky top-14">
-        <div class="text-sm font-medium text-gray-400">名前</div>
+        <div class="text-sm font-medium text-gray-400">タスク名</div>
         <div class="text-sm font-medium text-gray-400">期日</div>
         <div></div>
       </div>

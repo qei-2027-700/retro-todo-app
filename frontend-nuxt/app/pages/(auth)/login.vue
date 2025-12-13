@@ -63,6 +63,15 @@ const continueWithGoogle = () => {
           まずはサインインしてください
         </p>
 
+        <div class="text-dark-500 mb-8">
+          テスト用アカウント
+          <ul>
+            <li>testuser
+            </li>
+            <li>password123</li>
+          </ul>
+        </div>
+
         <!-- Googleで続行 -->
         <button
           type="button"

@@ -16,26 +16,26 @@ const menuItems = [
   {
     id: 'task',
     label: 'タスク',
-    icon: '✓',
+    icon: 'heroicons:check',
     badge: 'デフォルト',
     action: () => emit('addTask'),
   },
   {
     id: 'approval',
     label: '承認リクエスト',
-    icon: '🏆',
+    icon: 'heroicons:trophy',
     action: () => emit('addApprovalRequest'),
   },
   {
     id: 'milestone',
     label: 'マイルストーン',
-    icon: '🏆',
+    icon: 'heroicons:flag',
     action: () => emit('addMilestone'),
   },
   {
     id: 'section',
     label: 'セクション',
-    icon: '≡',
+    icon: 'heroicons:list-bullet',
     shortcut: 'Tab | N',
     action: () => emit('addSection'),
   },
@@ -53,7 +53,7 @@ const menuItems = [
             : ['bg-gray-200', 'hover:bg-gray-300', 'text-gray-700'],
         ]"
       >
-        <span>+</span>
+        <Icon name="heroicons:plus" class="w-4 h-4" />
         <span>タスクを追加</span>
         <svg
           :class="[

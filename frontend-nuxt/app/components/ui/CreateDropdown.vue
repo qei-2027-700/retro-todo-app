@@ -22,7 +22,7 @@ interface Props {
 const {
   items,
   buttonLabel = '作成',
-  buttonIcon = '➕',
+  buttonIcon = 'heroicons:plus',
   position = 'left',
   size = 'md',
   darkMode = true,
