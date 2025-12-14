@@ -30,18 +30,24 @@ const onSubmit = async () => {
   isLoading.value = true
   errorMessage.value = ''
 
-  const result = await login({
-    username: username.value,
-    password: password.value,
-  })
+  try {
+    const result = await login({
+      username: username.value,
+      password: password.value,
+    })
 
-  isLoading.value = false
+    console.log('Login result:', result) // デバッグ用
 
-  if (result.success) {
-    router.push('/dashboard')
-  }
-  else {
-    errorMessage.value = result.error || 'ログインに失敗しました'
+    if (result && result.success) {
+      await router.push('/dashboard')
+    } else {
+      errorMessage.value = (result && result.error) || 'ログインに失敗しました'
+    }
+  } catch (error) {
+    console.error('ログインエラー:', error)
+    errorMessage.value = 'ログイン処理中にエラーが発生しました'
+  } finally {
+    isLoading.value = false
   }
 }
 

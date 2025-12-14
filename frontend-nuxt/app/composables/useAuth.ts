@@ -1,5 +1,12 @@
+interface User {
+  id: number
+  name: string
+  email: string
+  avatar: string
+}
+
 export const useAuth = () => {
-  const user = ref(null)
+  const user = ref<User | null>(null)
   const isAuthenticated = computed(() => !!user.value)
 
   const initialize = () => {
@@ -12,19 +19,37 @@ export const useAuth = () => {
     }
   }
 
-  const login = async (credentials: { email: string; password: string }) => {
+  const login = async (credentials: { username: string; password: string }): Promise<{ success: boolean; error?: string }> => {
     // モック認証処理
     console.log('ログイン:', credentials)
     
-    user.value = {
-      id: 1,
-      name: 'テストユーザー',
-      email: credentials.email,
-      avatar: 'https://i.pravatar.cc/150?img=3'
-    }
+    // Promise.resolveを使って確実に結果を返す
+    return new Promise((resolve) => {
+      try {
+        // 簡単な認証チェック（モック）
+        if (credentials.username === 'testuser' && credentials.password === 'password123') {
+          user.value = {
+            id: 1,
+            name: 'テストユーザー',
+            email: 'test@example.com',
+            avatar: 'https://i.pravatar.cc/150?img=3'
+          }
 
-    // ダッシュボードにリダイレクト
-    await navigateTo('/dashboard')
+          const result = { success: true }
+          console.log('Login success, returning:', result) // デバッグ用
+          resolve(result)
+        } else {
+          const result = { success: false, error: 'ユーザー名またはパスワードが正しくありません' }
+          console.log('Login failed, returning:', result) // デバッグ用
+          resolve(result)
+        }
+      } catch (error) {
+        console.error('ログインエラー:', error)
+        const result = { success: false, error: 'ログイン処理中にエラーが発生しました' }
+        console.log('Login error, returning:', result) // デバッグ用
+        resolve(result)
+      }
+    })
   }
 
   const logout = async () => {
