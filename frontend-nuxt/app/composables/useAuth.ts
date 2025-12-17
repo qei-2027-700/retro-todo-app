@@ -5,8 +5,10 @@ interface User {
   avatar: string
 }
 
+// composableの外で状態を定義することで、グローバルな状態として共有される
+const user = ref<User | null>(null)
+
 export const useAuth = () => {
-  const user = ref<User | null>(null)
   const isAuthenticated = computed(() => !!user.value)
 
   const initialize = () => {

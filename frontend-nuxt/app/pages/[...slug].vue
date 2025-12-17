@@ -16,7 +16,7 @@
         お探しのページは存在しないか、移動された可能性があります。
       </p>
       <NuxtLink
-        to="/"
+        to="/dashboard"
         class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
       >
         ホームに戻る

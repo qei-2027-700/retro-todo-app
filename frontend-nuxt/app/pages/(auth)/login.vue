@@ -40,13 +40,16 @@ const onSubmit = async () => {
 
     if (result && result.success) {
       await router.push('/dashboard')
-    } else {
+    }
+    else {
       errorMessage.value = (result && result.error) || 'ログインに失敗しました'
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.error('ログインエラー:', error)
     errorMessage.value = 'ログイン処理中にエラーが発生しました'
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
