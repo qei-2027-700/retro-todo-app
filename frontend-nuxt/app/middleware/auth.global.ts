@@ -1,9 +1,4 @@
 export default defineNuxtRouteMiddleware((to) => {
-  // サーバーサイドでは認証チェックをスキップ
-  if (import.meta.server) {
-    return
-  }
-
   const { isAuthenticated } = useAuth()
 
   // 認証不要のパブリックページ（パスベース）

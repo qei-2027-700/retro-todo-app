@@ -5,7 +5,7 @@ interface User {
   avatar: string
 }
 
-// composableの外で状態を定義することで、グローバルな状態として共有される
+// SPA モードなので、composable の外で ref を定義（グローバルに共有される）
 const user = ref<User | null>(null)
 
 export const useAuth = () => {
@@ -74,7 +74,7 @@ export const useAuth = () => {
   }
 
   return {
-    user: readonly(user),
+    user,
     isAuthenticated,
     initialize,
     login,
